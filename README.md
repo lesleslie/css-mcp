@@ -1,5 +1,11 @@
 # CSS MCP Server
 
+[![Code style: crackerjack](https://img.shields.io/badge/code%20style-crackerjack-000042)](https://github.com/lesleslie/crackerjack)
+[![Runtime: oneiric](https://img.shields.io/badge/runtime-oneiric-6e5494)](https://github.com/lesleslie/oneiric)
+[![Framework: FastMCP](https://img.shields.io/badge/framework-FastMCP-0ea5e9)](https://github.com/jlowin/fastmcp)
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![Python: 3.13+](https://img.shields.io/badge/python-3.13%2B-green)](https://www.python.org/downloads/)
+
 Universal CSS Analysis and Documentation MCP Server. Analyze any CSS with 150+ metrics for complexity, specificity, and quality.
 
 ## Features
@@ -78,22 +84,26 @@ suggestions = analyzer.get_suggestions()
 The analyzer provides 150+ metrics including:
 
 ### Basic Metrics
+
 - Total rules, selectors, properties
 - File size (bytes, gzipped)
 - Lines of code
 
 ### Selector Metrics
+
 - ID, class, element, universal selectors
 - Pseudo-classes and pseudo-elements
 - Combinators (descendant, child, sibling)
 - Selector depth
 
 ### Specificity Metrics
+
 - Average, min, max specificity
 - High specificity rules
 - Specificity distribution
 
 ### Property Metrics
+
 - Unique properties
 - Category distribution (layout, typography, etc.)
 - Vendor prefixes
@@ -101,6 +111,7 @@ The analyzer provides 150+ metrics including:
 - CSS custom properties
 
 ### Quality Metrics
+
 - Duplicate selectors
 - Duplicate properties
 - Empty rules
@@ -110,6 +121,7 @@ The analyzer provides 150+ metrics including:
 ## Browser Compatibility
 
 Built-in compatibility data for common CSS properties across:
+
 - Chrome
 - Firefox
 - Safari

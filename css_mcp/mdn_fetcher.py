@@ -6,11 +6,9 @@ AI-assisted CSS development and learning.
 
 from __future__ import annotations
 
-import asyncio
 import logging
 import re
 from typing import Any
-from urllib.parse import quote
 
 import httpx
 from pydantic import BaseModel, Field
@@ -30,9 +28,15 @@ class MDNDocumentation(BaseModel):
     inherited: bool = Field(default=False, description="Whether property is inherited")
     computed_value: str = Field(default="", description="Computed value type")
     animation_type: str = Field(default="", description="Animation type")
-    examples: list[dict[str, str]] = Field(default_factory=list, description="Code examples")
-    browser_compatibility: dict[str, Any] = Field(default_factory=dict, description="Browser support")
-    related_properties: list[str] = Field(default_factory=list, description="Related properties")
+    examples: list[dict[str, str]] = Field(
+        default_factory=list, description="Code examples"
+    )
+    browser_compatibility: dict[str, Any] = Field(
+        default_factory=dict, description="Browser support"
+    )
+    related_properties: list[str] = Field(
+        default_factory=list, description="Related properties"
+    )
     status: str = Field(default="unknown", description="Fetch status")
 
 
@@ -338,10 +342,7 @@ class MDNFetcher:
         )
 
         # Extract summary from meta description or first paragraph
-        summary_match = re.search(
-            r'<meta name="description" content="([^"]+)"',
-            html
-        )
+        summary_match = re.search(r'<meta name="description" content="([^"]+)"', html)
         if summary_match:
             doc.summary = summary_match.group(1)
 
@@ -349,11 +350,11 @@ class MDNFetcher:
         syntax_match = re.search(
             r'<pre[^>]*class="[^"]*brush:css[^"]*"[^>]*>(.*?)</pre>',
             html,
-            re.DOTALL | re.IGNORECASE
+            re.DOTALL | re.IGNORECASE,
         )
         if syntax_match:
             # Clean HTML entities and tags
-            syntax = re.sub(r'<[^>]+>', '', syntax_match.group(1))
+            syntax = re.sub(r"<[^>]+>", "", syntax_match.group(1))
             doc.syntax = syntax.strip()
 
         # Check for inherited status
@@ -379,7 +380,9 @@ class MDNFetcher:
 
         return doc
 
-    async def search_properties(self, query: str, limit: int = 10) -> list[dict[str, str]]:
+    async def search_properties(
+        self, query: str, limit: int = 10
+    ) -> list[dict[str, str]]:
         """Search for CSS properties matching a query.
 
         Args:
@@ -395,11 +398,13 @@ class MDNFetcher:
         # Search in built-in metadata
         for prop, meta in self.PROPERTY_METADATA.items():
             if query_lower in prop or query_lower in meta.get("summary", "").lower():
-                results.append({
-                    "property": prop,
-                    "summary": meta.get("summary", "")[:100],
-                    "url": f"{self.BASE_URL}/{prop}",
-                })
+                results.append(
+                    {
+                        "property": prop,
+                        "summary": meta.get("summary", "")[:100],
+                        "url": f"{self.BASE_URL}/{prop}",
+                    }
+                )
                 if len(results) >= limit:
                     break
 

@@ -16,10 +16,10 @@ from typing import Any
 from fastmcp import FastMCP
 from pydantic import BaseModel, Field, field_validator
 
-from css_mcp.analyzer import CSSAnalyzer, CSSMetrics
-from css_mcp.compat import BrowserCompatChecker, get_compat_checker
-from css_mcp.config import AnalysisOptions, CSSMCPConfig
-from css_mcp.mdn_fetcher import MDNFetcher, get_mdn_fetcher
+from css_mcp.analyzer import CSSAnalyzer
+from css_mcp.compat import BrowserCompatChecker
+from css_mcp.config import CSSMCPConfig
+from css_mcp.mdn_fetcher import get_mdn_fetcher
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ class CSSInput(BaseModel):
         ...,
         min_length=1,
         max_length=10 * 1024 * 1024,  # 10MB max
-        description="CSS content to analyze"
+        description="CSS content to analyze",
     )
 
     @field_validator("css")
@@ -46,10 +46,7 @@ class PropertyInput(BaseModel):
     """Input for property documentation."""
 
     property_name: str = Field(
-        ...,
-        min_length=1,
-        max_length=100,
-        description="CSS property name"
+        ..., min_length=1, max_length=100, description="CSS property name"
     )
 
     @field_validator("property_name")
@@ -63,49 +60,32 @@ class CompatibilityInput(BaseModel):
     """Input for compatibility check."""
 
     properties: list[str] = Field(
-        ...,
-        min_length=1,
-        max_length=50,
-        description="List of CSS properties to check"
+        ..., min_length=1, max_length=50, description="List of CSS properties to check"
     )
     target_browsers: list[str] | None = Field(
         default=None,
-        description="Target browsers (e.g., ['chrome', 'firefox', 'safari', 'edge'])"
+        description="Target browsers (e.g., ['chrome', 'firefox', 'safari', 'edge'])",
     )
 
 
 class ProjectInput(BaseModel):
     """Input for project-wide analysis."""
 
-    path: str = Field(
-        ...,
-        description="Path to project directory or CSS file"
-    )
+    path: str = Field(..., description="Path to project directory or CSS file")
     include_patterns: list[str] | None = Field(
-        default=["**/*.css"],
-        description="Glob patterns for CSS files"
+        default=["**/*.css"], description="Glob patterns for CSS files"
     )
     exclude_patterns: list[str] | None = Field(
         default=["**/node_modules/**", "**/.venv/**", "**/vendor/**"],
-        description="Patterns to exclude"
+        description="Patterns to exclude",
     )
 
 
 class SearchInput(BaseModel):
     """Input for property search."""
 
-    query: str = Field(
-        ...,
-        min_length=1,
-        max_length=100,
-        description="Search query"
-    )
-    limit: int = Field(
-        default=10,
-        ge=1,
-        le=50,
-        description="Maximum results"
-    )
+    query: str = Field(..., min_length=1, max_length=100, description="Search query")
+    limit: int = Field(default=10, ge=1, le=50, description="Maximum results")
 
 
 def register_tools(mcp: FastMCP, config: CSSMCPConfig) -> None:
@@ -241,8 +221,7 @@ def register_tools(mcp: FastMCP, config: CSSMCPConfig) -> None:
             return {
                 "status": "success",
                 "properties": {
-                    prop: result.to_dict()
-                    for prop, result in results.items()
+                    prop: result.to_dict() for prop, result in results.items()
                 },
                 "summary": summary,
             }
@@ -393,10 +372,12 @@ def register_tools(mcp: FastMCP, config: CSSMCPConfig) -> None:
                     analyzer = CSSAnalyzer()
                     metrics = analyzer.analyze(content)
 
-                    file_results.append({
-                        "file": str(css_file.relative_to(project_path)),
-                        "metrics": metrics.to_summary(),
-                    })
+                    file_results.append(
+                        {
+                            "file": str(css_file.relative_to(project_path)),
+                            "metrics": metrics.to_summary(),
+                        }
+                    )
 
                 except Exception as e:
                     logger.warning(f"Failed to analyze {css_file}: {e}")

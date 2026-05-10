@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 logger = logging.getLogger(__name__)
 
 
-class SupportLevel(str, Enum):
+class SupportLevel(StrEnum):
     """Browser support level."""
 
     FULL = "full"  # Fully supported
@@ -55,20 +55,16 @@ class CompatibilityResult(BaseModel):
 
     property_name: str = Field(..., description="CSS property name")
     overall_support: SupportLevel = Field(
-        default=SupportLevel.UNKNOWN,
-        description="Overall support level"
+        default=SupportLevel.UNKNOWN, description="Overall support level"
     )
     browsers: dict[str, BrowserSupport] = Field(
-        default_factory=dict,
-        description="Per-browser support details"
+        default_factory=dict, description="Per-browser support details"
     )
     recommendations: list[str] = Field(
-        default_factory=list,
-        description="Compatibility recommendations"
+        default_factory=list, description="Compatibility recommendations"
     )
     prefixes_needed: list[str] = Field(
-        default_factory=list,
-        description="Vendor prefixes that may be needed"
+        default_factory=list, description="Vendor prefixes that may be needed"
     )
 
     def to_dict(self) -> dict[str, Any]:
@@ -138,7 +134,6 @@ class BrowserCompatChecker:
             "safari": {"version": "14.1", "support": "full"},
             "edge": {"version": "84", "support": "full"},
         },
-
         # Grid
         "grid-template-columns": {
             "chrome": {"version": "57", "support": "full"},
@@ -158,7 +153,6 @@ class BrowserCompatChecker:
             "safari": {"version": "10.1", "support": "full"},
             "edge": {"version": "16", "support": "full"},
         },
-
         # Layout
         "position": {
             "chrome": {"version": "1.0", "support": "full"},
@@ -172,7 +166,6 @@ class BrowserCompatChecker:
             "safari": {"version": "13", "support": "full", "prefix": "-webkit-"},
             "edge": {"version": "16", "support": "full"},
         },
-
         # Sizing
         "aspect-ratio": {
             "chrome": {"version": "88", "support": "full"},
@@ -180,7 +173,6 @@ class BrowserCompatChecker:
             "safari": {"version": "15", "support": "full"},
             "edge": {"version": "88", "support": "full"},
         },
-
         # Typography
         "font-size": {
             "chrome": {"version": "1.0", "support": "full"},
@@ -194,7 +186,6 @@ class BrowserCompatChecker:
             "safari": {"version": "1.0", "support": "full"},
             "edge": {"version": "12", "support": "full"},
         },
-
         # Colors
         "color": {
             "chrome": {"version": "1.0", "support": "full"},
@@ -208,7 +199,6 @@ class BrowserCompatChecker:
             "safari": {"version": "1.0", "support": "full"},
             "edge": {"version": "12", "support": "full"},
         },
-
         # Background
         "background": {
             "chrome": {"version": "1.0", "support": "full"},
@@ -222,7 +212,6 @@ class BrowserCompatChecker:
             "safari": {"version": "3.0", "support": "full", "prefix": "-webkit-"},
             "edge": {"version": "12", "support": "full"},
         },
-
         # Border
         "border": {
             "chrome": {"version": "1.0", "support": "full"},
@@ -236,7 +225,6 @@ class BrowserCompatChecker:
             "safari": {"version": "5.0", "support": "full"},
             "edge": {"version": "12", "support": "full"},
         },
-
         # Effects
         "box-shadow": {
             "chrome": {"version": "10.0", "support": "full"},
@@ -256,7 +244,6 @@ class BrowserCompatChecker:
             "safari": {"version": "9", "support": "full", "prefix": "-webkit-"},
             "edge": {"version": "17", "support": "full"},
         },
-
         # Transform
         "transform": {
             "chrome": {"version": "36", "support": "full"},
@@ -264,7 +251,6 @@ class BrowserCompatChecker:
             "safari": {"version": "9", "support": "full"},
             "edge": {"version": "12", "support": "full"},
         },
-
         # Animation
         "animation": {
             "chrome": {"version": "43", "support": "full"},
@@ -272,7 +258,6 @@ class BrowserCompatChecker:
             "safari": {"version": "9", "support": "full"},
             "edge": {"version": "12", "support": "full"},
         },
-
         # Transition
         "transition": {
             "chrome": {"version": "26", "support": "full"},
@@ -280,7 +265,6 @@ class BrowserCompatChecker:
             "safari": {"version": "9", "support": "full"},
             "edge": {"version": "12", "support": "full"},
         },
-
         # CSS Custom Properties
         "--*": {
             "chrome": {"version": "49", "support": "full"},
@@ -288,7 +272,6 @@ class BrowserCompatChecker:
             "safari": {"version": "9.1", "support": "full"},
             "edge": {"version": "15", "support": "full"},
         },
-
         # Container Queries
         "container-type": {
             "chrome": {"version": "105", "support": "full"},
@@ -302,7 +285,6 @@ class BrowserCompatChecker:
             "safari": {"version": "16", "support": "full"},
             "edge": {"version": "105", "support": "full"},
         },
-
         # Logical Properties
         "margin-inline": {
             "chrome": {"version": "87", "support": "full"},
@@ -316,7 +298,6 @@ class BrowserCompatChecker:
             "safari": {"version": "14.1", "support": "full"},
             "edge": {"version": "87", "support": "full"},
         },
-
         # Scroll Snap
         "scroll-snap-type": {
             "chrome": {"version": "69", "support": "full"},
@@ -324,7 +305,6 @@ class BrowserCompatChecker:
             "safari": {"version": "11", "support": "full"},
             "edge": {"version": "79", "support": "full"},
         },
-
         # Overscroll Behavior
         "overscroll-behavior": {
             "chrome": {"version": "63", "support": "full"},
@@ -470,7 +450,8 @@ class BrowserCompatChecker:
             )
         elif result.overall_support == SupportLevel.PARTIAL:
             unsupported = [
-                b for b, s in result.browsers.items()
+                b
+                for b, s in result.browsers.items()
                 if s.support_level in (SupportLevel.NONE, SupportLevel.UNKNOWN)
             ]
             if unsupported:
@@ -481,9 +462,7 @@ class BrowserCompatChecker:
             recommendations.append(
                 f"'{result.property_name}' is not supported in target browsers"
             )
-            recommendations.append(
-                "Consider using a fallback or alternative approach"
-            )
+            recommendations.append("Consider using a fallback or alternative approach")
 
         if result.prefixes_needed:
             recommendations.append(
@@ -535,19 +514,24 @@ class BrowserCompatChecker:
                 summary["fully_supported"] += 1
             elif result.overall_support == SupportLevel.PARTIAL:
                 summary["partially_supported"] += 1
-                summary["issues"].append({
-                    "property": prop,
-                    "browsers": [
-                        b for b, s in result.browsers.items()
-                        if s.support_level != SupportLevel.FULL
-                    ],
-                })
+                summary["issues"].append(
+                    {
+                        "property": prop,
+                        "browsers": [
+                            b
+                            for b, s in result.browsers.items()
+                            if s.support_level != SupportLevel.FULL
+                        ],
+                    }
+                )
             elif result.overall_support == SupportLevel.NONE:
                 summary["not_supported"] += 1
-                summary["issues"].append({
-                    "property": prop,
-                    "browsers": list(result.browsers.keys()),
-                })
+                summary["issues"].append(
+                    {
+                        "property": prop,
+                        "browsers": list(result.browsers.keys()),
+                    }
+                )
             else:
                 summary["unknown"] += 1
 

@@ -1,1 +1,52 @@
-{"last_event": {}, "last_workflow": {"workflow": "crackerjack", "node_count": 4, "entry_nodes": ["configuration"], "nodes": [{"node": "configuration", "task": "configuration", "depends_on": [], "duration_ms": 3.318628005217761, "attempts": 1, "retry_policy": null}, {"node": "documentation_cleanup", "task": "documentation_cleanup", "depends_on": ["configuration"], "duration_ms": 19.344181986525655, "attempts": 1, "retry_policy": null}, {"node": "publishing", "task": "publishing", "depends_on": ["documentation_cleanup"], "duration_ms": 8584.604609990492, "attempts": 1, "retry_policy": null}, {"node": "commit", "task": "commit", "depends_on": ["publishing"], "duration_ms": 2.322268032003194, "attempts": 1, "retry_policy": null}], "total_duration_ms": 8609.589688014239, "recorded_at": "2026-02-25T23:02:59.740534+00:00"}}
+{
+  "last_event": {},
+  "last_workflow": {
+    "entry_nodes": [
+      "configuration"
+    ],
+    "node_count": 4,
+    "nodes": [
+      {
+        "attempts": 1,
+        "depends_on": [],
+        "duration_ms": 6.476579990703613,
+        "node": "configuration",
+        "retry_policy": null,
+        "task": "configuration"
+      },
+      {
+        "attempts": 1,
+        "depends_on": [
+          "configuration"
+        ],
+        "duration_ms": 27.204805985093117,
+        "node": "documentation_cleanup",
+        "retry_policy": null,
+        "task": "documentation_cleanup"
+      },
+      {
+        "attempts": 1,
+        "depends_on": [
+          "documentation_cleanup"
+        ],
+        "duration_ms": 10762.154611991718,
+        "node": "publishing",
+        "retry_policy": null,
+        "task": "publishing"
+      },
+      {
+        "attempts": 1,
+        "depends_on": [
+          "publishing"
+        ],
+        "duration_ms": 1.2448810157366097,
+        "node": "commit",
+        "retry_policy": null,
+        "task": "commit"
+      }
+    ],
+    "recorded_at": "2026-02-26T00:01:54.544053+00:00",
+    "total_duration_ms": 10797.080878983252,
+    "workflow": "crackerjack"
+  }
+}

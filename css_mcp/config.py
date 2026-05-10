@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Literal
-
 from pydantic import BaseModel, Field
 
 
@@ -18,7 +16,9 @@ class CSSMCPConfig(BaseModel):
     http_port: int = Field(default=3050, description="HTTP server port")
     http_host: str = Field(default="localhost", description="HTTP server host")
     debug: bool = Field(default=False, description="Enable debug mode")
-    enable_http_transport: bool = Field(default=True, description="Enable HTTP transport")
+    enable_http_transport: bool = Field(
+        default=True, description="Enable HTTP transport"
+    )
 
     # Cache settings
     cache_dir: str = Field(default=".css_mcp_cache", description="Cache directory")
@@ -27,19 +27,25 @@ class CSSMCPConfig(BaseModel):
     # MDN settings
     mdn_base_url: str = Field(
         default="https://developer.mozilla.org/en-US/docs/Web/CSS",
-        description="MDN CSS documentation base URL"
+        description="MDN CSS documentation base URL",
     )
     mdn_timeout: float = Field(default=10.0, description="MDN fetch timeout in seconds")
 
     # Analysis settings
-    max_file_size: int = Field(default=10 * 1024 * 1024, description="Max CSS file size (10MB)")
-    complexity_threshold: int = Field(default=80, description="Complexity score threshold for warnings")
-    specificity_threshold: int = Field(default=100, description="Specificity threshold for warnings")
+    max_file_size: int = Field(
+        default=10 * 1024 * 1024, description="Max CSS file size (10MB)"
+    )
+    complexity_threshold: int = Field(
+        default=80, description="Complexity score threshold for warnings"
+    )
+    specificity_threshold: int = Field(
+        default=100, description="Specificity threshold for warnings"
+    )
 
     # Browser compatibility settings
     target_browsers: list[str] = Field(
         default=["chrome", "firefox", "safari", "edge"],
-        description="Target browsers for compatibility checks"
+        description="Target browsers for compatibility checks",
     )
     browser_versions: dict[str, str] = Field(
         default={
@@ -48,17 +54,15 @@ class CSSMCPConfig(BaseModel):
             "safari": "last 2 versions",
             "edge": "last 2 versions",
         },
-        description="Browser version requirements"
+        description="Browser version requirements",
     )
 
     # Integration settings
     fastblocks_integration: bool = Field(
-        default=True,
-        description="Enable FastBlocks style adapter integration"
+        default=True, description="Enable FastBlocks style adapter integration"
     )
     fastblocks_path: str | None = Field(
-        default=None,
-        description="Path to FastBlocks project for integration"
+        default=None, description="Path to FastBlocks project for integration"
     )
 
     model_config = {
@@ -70,10 +74,18 @@ class CSSMCPConfig(BaseModel):
 class AnalysisOptions(BaseModel):
     """Options for CSS analysis."""
 
-    include_metrics: bool = Field(default=True, description="Include complexity metrics")
-    include_specificity: bool = Field(default=True, description="Include specificity analysis")
-    include_compatibility: bool = Field(default=True, description="Include browser compatibility")
-    include_suggestions: bool = Field(default=True, description="Include optimization suggestions")
+    include_metrics: bool = Field(
+        default=True, description="Include complexity metrics"
+    )
+    include_specificity: bool = Field(
+        default=True, description="Include specificity analysis"
+    )
+    include_compatibility: bool = Field(
+        default=True, description="Include browser compatibility"
+    )
+    include_suggestions: bool = Field(
+        default=True, description="Include optimization suggestions"
+    )
     max_results: int = Field(default=100, description="Maximum results per category")
 
 
