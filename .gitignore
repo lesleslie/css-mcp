@@ -61,3 +61,12 @@ dmypy.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Backup Files (added by gitignore audit)
+# ============================================================================
+*.backup
+*.bak
+/.backups/
+/.backup/
+.backups/
+.backup/
