@@ -6,14 +6,15 @@ helping developers ensure cross-browser compatibility.
 
 from __future__ import annotations
 
-import logging
+from contextlib import suppress
 from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
 
+from oneiric.core.logging import get_logger
 from pydantic import BaseModel, Field
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class SupportLevel(StrEnum):
@@ -354,9 +355,7 @@ class BrowserCompatChecker:
         if compat_data is None:
             # Unknown property
             result.overall_support = SupportLevel.UNKNOWN
-            result.recommendations.append(
-                f"No compatibility data available for '{prop}'"
-            )
+            result.recommendations.append(f"No compatibility data available for '{prop}'")
             return result
 
         # Check each target browser
@@ -387,15 +386,13 @@ class BrowserCompatChecker:
             min_version = self.browser_versions.get(browser)
             if min_version and support.version_added:
                 # Simple version comparison (works for major.minor)
-                try:
+                with suppress(ValueError, IndexError):
                     required = float(min_version.split()[0])
                     available = float(support.version_added)
                     if available > required:
                         support.notes.append(
                             f"Requires version {support.version_added}+ (target: {min_version})"
                         )
-                except (ValueError, IndexError):
-                    pass
 
             result.browsers[browser] = support
             support_levels.append(support_level)
@@ -434,9 +431,7 @@ class BrowserCompatChecker:
             result.browsers[browser] = support
 
         result.overall_support = SupportLevel.FULL
-        result.recommendations.append(
-            "CSS custom properties are well-supported in modern browsers"
-        )
+        result.recommendations.append("CSS custom properties are well-supported in modern browsers")
 
         return result
 
@@ -459,15 +454,15 @@ class BrowserCompatChecker:
                     f"'{result.property_name}' may not work in: {', '.join(unsupported)}"
                 )
         elif result.overall_support == SupportLevel.NONE:
-            recommendations.append(
-                f"'{result.property_name}' is not supported in target browsers"
+            recommendations.extend(
+                (
+                    f"'{result.property_name}' is not supported in target browsers",
+                    "Consider using a fallback or alternative approach",
+                )
             )
-            recommendations.append("Consider using a fallback or alternative approach")
 
         if result.prefixes_needed:
-            recommendations.append(
-                f"Add vendor prefixes: {', '.join(result.prefixes_needed)}"
-            )
+            recommendations.append(f"Add vendor prefixes: {', '.join(result.prefixes_needed)}")
 
         return recommendations
 
@@ -499,7 +494,7 @@ class BrowserCompatChecker:
         """
         results = self.check_properties(properties)
 
-        summary = {
+        summary: dict[str, Any] = {
             "total_properties": len(properties),
             "fully_supported": 0,
             "partially_supported": 0,

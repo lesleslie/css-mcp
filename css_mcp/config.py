@@ -2,26 +2,29 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
+
+from mcp_common import MCPServerSettings
 from pydantic import BaseModel, Field
 
 
-class CSSMCPConfig(BaseModel):
-    """Configuration for CSS MCP Server.
+class CSSMCPSettings(MCPServerSettings):
+    """CSS MCP Server configuration extending MCPServerSettings.
 
-    This configuration follows the mcp-common patterns for settings
-    with environment variable support and validation.
+    Loaded in priority order (highest to lowest):
+    1. Environment variables (CSS_MCP_*)
+    2. settings/local.yaml (gitignored, developer overrides)
+    3. settings/css-mcp.yaml (checked into repo)
+    4. Defaults defined below
     """
 
-    # Server settings
-    http_port: int = Field(default=3050, description="HTTP server port")
+    server_name: str = "css-mcp"
+
+    # HTTP server
     http_host: str = Field(default="localhost", description="HTTP server host")
-    debug: bool = Field(default=False, description="Enable debug mode")
-    enable_http_transport: bool = Field(
-        default=True, description="Enable HTTP transport"
-    )
+    http_port: int = Field(default=3050, description="HTTP server port")
 
     # Cache settings
-    cache_dir: str = Field(default=".css_mcp_cache", description="Cache directory")
     cache_ttl: int = Field(default=86400, description="Cache TTL in seconds (24 hours)")
 
     # MDN settings
@@ -33,7 +36,7 @@ class CSSMCPConfig(BaseModel):
 
     # Analysis settings
     max_file_size: int = Field(
-        default=10 * 1024 * 1024, description="Max CSS file size (10MB)"
+        default=10 * 1024 * 1024, description="Max CSS file size in bytes (10MB)"
     )
     complexity_threshold: int = Field(
         default=80, description="Complexity score threshold for warnings"
@@ -59,37 +62,28 @@ class CSSMCPConfig(BaseModel):
 
     # Integration settings
     fastblocks_integration: bool = Field(
-        default=True, description="Enable FastBlocks style adapter integration"
+        default=False, description="Enable FastBlocks style adapter integration"
     )
     fastblocks_path: str | None = Field(
         default=None, description="Path to FastBlocks project for integration"
     )
 
-    model_config = {
-        "env_prefix": "CSS_MCP_",
-        "extra": "ignore",
-    }
+
+# Backward-compatible alias — existing imports of CSSMCPConfig continue to work
+CSSMCPConfig = CSSMCPSettings
 
 
 class AnalysisOptions(BaseModel):
     """Options for CSS analysis."""
 
-    include_metrics: bool = Field(
-        default=True, description="Include complexity metrics"
-    )
-    include_specificity: bool = Field(
-        default=True, description="Include specificity analysis"
-    )
-    include_compatibility: bool = Field(
-        default=True, description="Include browser compatibility"
-    )
-    include_suggestions: bool = Field(
-        default=True, description="Include optimization suggestions"
-    )
+    include_metrics: bool = Field(default=True, description="Include complexity metrics")
+    include_specificity: bool = Field(default=True, description="Include specificity analysis")
+    include_compatibility: bool = Field(default=True, description="Include browser compatibility")
+    include_suggestions: bool = Field(default=True, description="Include optimization suggestions")
     max_results: int = Field(default=100, description="Maximum results per category")
 
 
-class CompatibilityLevel(str):
+class CompatibilityLevel(StrEnum):
     """Browser compatibility levels."""
 
     FULL = "full"
@@ -98,7 +92,7 @@ class CompatibilityLevel(str):
     UNKNOWN = "unknown"
 
 
-class PropertyCategory(str):
+class PropertyCategory(StrEnum):
     """CSS property categories for organization."""
 
     LAYOUT = "layout"

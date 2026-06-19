@@ -166,34 +166,22 @@ class CSSMetrics(BaseModel):
     class_selectors: int = Field(default=0, description="Class selectors (.class)")
     element_selectors: int = Field(default=0, description="Element selectors (div)")
     universal_selectors: int = Field(default=0, description="Universal selectors (*)")
-    attribute_selectors: int = Field(
-        default=0, description="Attribute selectors ([attr])"
-    )
-    pseudo_class_selectors: int = Field(
-        default=0, description="Pseudo-class selectors (:hover)"
-    )
+    attribute_selectors: int = Field(default=0, description="Attribute selectors ([attr])")
+    pseudo_class_selectors: int = Field(default=0, description="Pseudo-class selectors (:hover)")
     pseudo_element_selectors: int = Field(
         default=0, description="Pseudo-element selectors (::before)"
     )
-    descendant_combinators: int = Field(
-        default=0, description="Descendant combinators (space)"
-    )
+    descendant_combinators: int = Field(default=0, description="Descendant combinators (space)")
     child_combinators: int = Field(default=0, description="Child combinators (>)")
-    sibling_combinators: int = Field(
-        default=0, description="Sibling combinators (+, ~)"
-    )
+    sibling_combinators: int = Field(default=0, description="Sibling combinators (+, ~)")
     nested_selectors: int = Field(default=0, description="Nested selectors depth > 3")
 
     # Specificity metrics
     avg_specificity: float = Field(default=0.0, description="Average specificity score")
     max_specificity: int = Field(default=0, description="Maximum specificity score")
     min_specificity: int = Field(default=0, description="Minimum specificity score")
-    high_specificity_rules: int = Field(
-        default=0, description="Rules with specificity > 100"
-    )
-    very_high_specificity_rules: int = Field(
-        default=0, description="Rules with specificity > 500"
-    )
+    high_specificity_rules: int = Field(default=0, description="Rules with specificity > 100")
+    very_high_specificity_rules: int = Field(default=0, description="Rules with specificity > 500")
     specificity_distribution: dict[str, int] = Field(
         default_factory=lambda: {"low": 0, "medium": 0, "high": 0, "very_high": 0},
         description="Distribution of specificity levels",
@@ -204,41 +192,23 @@ class CSSMetrics(BaseModel):
     property_count: dict[str, int] = Field(
         default_factory=dict, description="Property usage counts"
     )
-    vendor_prefixed_properties: int = Field(
-        default=0, description="Vendor-prefixed properties"
-    )
-    important_properties: int = Field(
-        default=0, description="Properties with !important"
-    )
+    vendor_prefixed_properties: int = Field(default=0, description="Vendor-prefixed properties")
+    important_properties: int = Field(default=0, description="Properties with !important")
     custom_properties: int = Field(default=0, description="CSS custom properties (--*)")
-    shorthand_properties: int = Field(
-        default=0, description="Shorthand properties used"
-    )
+    shorthand_properties: int = Field(default=0, description="Shorthand properties used")
 
     # Property category distribution
-    layout_properties: int = Field(
-        default=0, description="Layout properties (display, position)"
-    )
-    typography_properties: int = Field(
-        default=0, description="Typography properties (font, text)"
-    )
-    color_properties: int = Field(
-        default=0, description="Color properties (color, background)"
-    )
-    spacing_properties: int = Field(
-        default=0, description="Spacing properties (margin, padding)"
-    )
-    sizing_properties: int = Field(
-        default=0, description="Sizing properties (width, height)"
-    )
+    layout_properties: int = Field(default=0, description="Layout properties (display, position)")
+    typography_properties: int = Field(default=0, description="Typography properties (font, text)")
+    color_properties: int = Field(default=0, description="Color properties (color, background)")
+    spacing_properties: int = Field(default=0, description="Spacing properties (margin, padding)")
+    sizing_properties: int = Field(default=0, description="Sizing properties (width, height)")
     transform_properties: int = Field(default=0, description="Transform properties")
     animation_properties: int = Field(default=0, description="Animation properties")
     transition_properties: int = Field(default=0, description="Transition properties")
     flexbox_properties: int = Field(default=0, description="Flexbox properties")
     grid_properties: int = Field(default=0, description="Grid properties")
-    effect_properties: int = Field(
-        default=0, description="Effect properties (shadow, opacity)"
-    )
+    effect_properties: int = Field(default=0, description="Effect properties (shadow, opacity)")
 
     # Color metrics
     total_colors: int = Field(default=0, description="Total color values")
@@ -260,22 +230,14 @@ class CSSMetrics(BaseModel):
     css_functions: int = Field(default=0, description="CSS function calls")
 
     # Complexity metrics
-    complexity_score: int = Field(
-        default=0, description="Overall complexity score (0-100)"
-    )
-    complexity_level: str = Field(
-        default="simple", description="Complexity classification"
-    )
-    avg_selector_length: float = Field(
-        default=0.0, description="Average selector length"
-    )
+    complexity_score: int = Field(default=0, description="Overall complexity score (0-100)")
+    complexity_level: str = Field(default="simple", description="Complexity classification")
+    avg_selector_length: float = Field(default=0.0, description="Average selector length")
     max_selector_length: int = Field(default=0, description="Maximum selector length")
     avg_declarations_per_rule: float = Field(
         default=0.0, description="Average declarations per rule"
     )
-    max_declarations_per_rule: int = Field(
-        default=0, description="Maximum declarations per rule"
-    )
+    max_declarations_per_rule: int = Field(default=0, description="Maximum declarations per rule")
 
     # Organization metrics
     media_queries: int = Field(default=0, description="Media query count")
@@ -287,24 +249,16 @@ class CSSMetrics(BaseModel):
 
     # Quality metrics
     duplicate_selectors: int = Field(default=0, description="Duplicate selectors")
-    duplicate_properties: int = Field(
-        default=0, description="Duplicate properties in rules"
-    )
+    duplicate_properties: int = Field(default=0, description="Duplicate properties in rules")
     empty_rules: int = Field(default=0, description="Empty rules")
-    invalid_properties: int = Field(
-        default=0, description="Potentially invalid properties"
-    )
+    invalid_properties: int = Field(default=0, description="Potentially invalid properties")
     redundant_values: int = Field(default=0, description="Redundant property values")
 
     # Efficiency metrics
     gzipped_size: int = Field(default=0, description="Estimated gzipped size")
     rules_per_line: float = Field(default=0.0, description="Rules per line ratio")
-    selector_efficiency: float = Field(
-        default=0.0, description="Selector efficiency score"
-    )
-    property_efficiency: float = Field(
-        default=0.0, description="Property efficiency score"
-    )
+    selector_efficiency: float = Field(default=0.0, description="Selector efficiency score")
+    property_efficiency: float = Field(default=0.0, description="Property efficiency score")
 
     def to_summary(self) -> dict[str, Any]:
         """Generate a summary of key metrics."""
@@ -685,9 +639,7 @@ class CSSAnalyzer:
     def _extract_elements(self, selector: str) -> list[str]:
         """Extract element names from selector."""
         # Match element names (not preceded by ., #, :, or another letter)
-        elements = re.findall(
-            r"(?<![.#:\w])([a-z][a-z0-9-]*)(?![a-z0-9-]*\()", selector.lower()
-        )
+        elements = re.findall(r"(?<![.#:\w])([a-z][a-z0-9-]*)(?![a-z0-9-]*\()", selector.lower())
         # Filter out pseudo-classes/elements
         pseudo = {
             "hover",
@@ -739,24 +691,48 @@ class CSSAnalyzer:
 
     def _get_vendor_prefixes(self, property_name: str) -> list[str]:
         """Extract vendor prefixes from property name."""
-        prefixes = []
-        for prefix in ("-webkit-", "-moz-", "-ms-", "-o-"):
-            if property_name.startswith(prefix):
-                prefixes.append(prefix.rstrip("-"))
-        return prefixes
+        return [
+            prefix.rstrip("-")
+            for prefix in ("-webkit-", "-moz-", "-ms-", "-o-")
+            if property_name.startswith(prefix)
+        ]
+
+    def _update_specificity_metrics(self, selector: CSSSelector) -> None:
+        """Update specificity-related metrics for a selector."""
+        score = selector.specificity_score
+        if self._metrics.max_specificity < score:
+            self._metrics.max_specificity = score
+        if self._metrics.min_specificity == 0 or score < self._metrics.min_specificity:
+            self._metrics.min_specificity = score
+        level = selector.specificity_level.value
+        self._metrics.specificity_distribution[level] = (
+            self._metrics.specificity_distribution.get(level, 0) + 1
+        )
+        if score > 100:
+            self._metrics.high_specificity_rules += 1
+        if score > 500:
+            self._metrics.very_high_specificity_rules += 1
+
+    def _update_combinator_metrics(self, selector: CSSSelector) -> None:
+        """Update combinator and depth metrics for a selector."""
+        for combinator in selector.combinators:
+            if combinator == " ":
+                self._metrics.descendant_combinators += 1
+            elif combinator == ">":
+                self._metrics.child_combinators += 1
+            elif combinator in ("+", "~"):
+                self._metrics.sibling_combinators += 1
+        depth = (
+            selector.selector.count(" ")
+            + selector.selector.count(">")
+            + selector.selector.count("+")
+        )
+        if depth > 3:
+            self._metrics.nested_selectors += 1
 
     def _update_selector_metrics(self, selector: CSSSelector) -> None:
         """Update metrics based on selector analysis."""
-        specificity_score = selector.specificity_score
-
-        # Update specificity metrics
-        if self._metrics.max_specificity < specificity_score:
-            self._metrics.max_specificity = specificity_score
-        if (
-            self._metrics.min_specificity == 0
-            or specificity_score < self._metrics.min_specificity
-        ):
-            self._metrics.min_specificity = specificity_score
+        self._update_specificity_metrics(selector)
 
         # Count selector types
         if selector.ids:
@@ -774,34 +750,7 @@ class CSSAnalyzer:
         if selector.pseudo_elements:
             self._metrics.pseudo_element_selectors += len(selector.pseudo_elements)
 
-        # Count combinators
-        for combinator in selector.combinators:
-            if combinator == " ":
-                self._metrics.descendant_combinators += 1
-            elif combinator == ">":
-                self._metrics.child_combinators += 1
-            elif combinator in ("+", "~"):
-                self._metrics.sibling_combinators += 1
-
-        # Check selector depth
-        depth = (
-            selector.selector.count(" ")
-            + selector.selector.count(">")
-            + selector.selector.count("+")
-        )
-        if depth > 3:
-            self._metrics.nested_selectors += 1
-
-        # Specificity distribution
-        level = selector.specificity_level.value
-        self._metrics.specificity_distribution[level] = (
-            self._metrics.specificity_distribution.get(level, 0) + 1
-        )
-
-        if specificity_score > 100:
-            self._metrics.high_specificity_rules += 1
-        if specificity_score > 500:
-            self._metrics.very_high_specificity_rules += 1
+        self._update_combinator_metrics(selector)
 
         # Selector length
         selector_len = len(selector.selector)
@@ -811,9 +760,7 @@ class CSSAnalyzer:
     def _update_property_metrics(self, prop: CSSProperty) -> None:
         """Update metrics based on property analysis."""
         # Count property usage
-        self._metrics.property_count[prop.name] = (
-            self._metrics.property_count.get(prop.name, 0) + 1
-        )
+        self._metrics.property_count[prop.name] = self._metrics.property_count.get(prop.name, 0) + 1
 
         # Important count
         if prop.important:
@@ -914,9 +861,7 @@ class CSSAnalyzer:
 
         # Calculate average selector length
         if total_selectors > 0:
-            total_length = sum(
-                len(s.selector) for rule in self._rules for s in rule.selectors
-            )
+            total_length = sum(len(s.selector) for rule in self._rules for s in rule.selectors)
             self._metrics.avg_selector_length = total_length / total_selectors
 
         # Calculate declarations per rule
@@ -990,9 +935,7 @@ class CSSAnalyzer:
         )
         max_issues = self._metrics.total_selectors * 5
         if max_issues > 0:
-            self._metrics.selector_efficiency = max(
-                0, 100 - (selector_issues / max_issues * 100)
-            )
+            self._metrics.selector_efficiency = max(0, 100 - (selector_issues / max_issues * 100))
 
         # Property efficiency (higher is better)
         # Based on: fewer !important, fewer duplicates, fewer vendor prefixes
@@ -1009,9 +952,7 @@ class CSSAnalyzer:
 
         # Rules per line
         if self._metrics.total_lines > 0:
-            self._metrics.rules_per_line = (
-                self._metrics.total_rules / self._metrics.total_lines
-            )
+            self._metrics.rules_per_line = self._metrics.total_rules / self._metrics.total_lines
 
     def _find_duplicates(self) -> None:
         """Find duplicate selectors and properties."""
@@ -1032,9 +973,7 @@ class CSSAnalyzer:
                 self._metrics.duplicate_properties += 1
 
         # Find empty rules
-        self._metrics.empty_rules = sum(
-            1 for rule in self._rules if not rule.properties
-        )
+        self._metrics.empty_rules = sum(1 for rule in self._rules if not rule.properties)
 
     def _estimate_gzip_size(self, content: str) -> None:
         """Estimate gzipped size of CSS."""

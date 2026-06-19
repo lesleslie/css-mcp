@@ -9,19 +9,22 @@ Provides tools for:
 
 from __future__ import annotations
 
-import logging
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from fastmcp import FastMCP
+from oneiric.core.logging import get_logger
 from pydantic import BaseModel, Field, field_validator
 
 from css_mcp.analyzer import CSSAnalyzer
 from css_mcp.compat import BrowserCompatChecker
-from css_mcp.config import CSSMCPConfig
 from css_mcp.mdn_fetcher import get_mdn_fetcher
 
-logger = logging.getLogger(__name__)
+if TYPE_CHECKING:
+    from fastmcp import FastMCP
+
+    from css_mcp.config import CSSMCPSettings
+
+logger = get_logger(__name__)
 
 
 # Input models for tool validation
@@ -45,9 +48,7 @@ class CSSInput(BaseModel):
 class PropertyInput(BaseModel):
     """Input for property documentation."""
 
-    property_name: str = Field(
-        ..., min_length=1, max_length=100, description="CSS property name"
-    )
+    property_name: str = Field(..., min_length=1, max_length=100, description="CSS property name")
 
     @field_validator("property_name")
     @classmethod
@@ -88,7 +89,7 @@ class SearchInput(BaseModel):
     limit: int = Field(default=10, ge=1, le=50, description="Maximum results")
 
 
-def register_tools(mcp: FastMCP, config: CSSMCPConfig) -> None:
+def register_tools(mcp: FastMCP, config: CSSMCPSettings) -> None:
     """Register all CSS analysis tools with the MCP server.
 
     Args:
@@ -128,7 +129,7 @@ def register_tools(mcp: FastMCP, config: CSSMCPConfig) -> None:
             }
 
         except Exception as e:
-            logger.error(f"CSS analysis failed: {e}")
+            logger.exception("CSS analysis failed", error=str(e))
             return {
                 "status": "error",
                 "error": str(e),
@@ -154,7 +155,7 @@ def register_tools(mcp: FastMCP, config: CSSMCPConfig) -> None:
             }
 
         except Exception as e:
-            logger.error(f"CSS summary failed: {e}")
+            logger.exception("CSS summary failed", error=str(e))
             return {
                 "status": "error",
                 "error": str(e),
@@ -186,7 +187,7 @@ def register_tools(mcp: FastMCP, config: CSSMCPConfig) -> None:
             }
 
         except Exception as e:
-            logger.error(f"Failed to get docs for {input_data.property_name}: {e}")
+            logger.exception("Failed to get docs", prop=input_data.property_name, error=str(e))
             return {
                 "status": "error",
                 "error": str(e),
@@ -220,14 +221,12 @@ def register_tools(mcp: FastMCP, config: CSSMCPConfig) -> None:
 
             return {
                 "status": "success",
-                "properties": {
-                    prop: result.to_dict() for prop, result in results.items()
-                },
+                "properties": {prop: result.to_dict() for prop, result in results.items()},
                 "summary": summary,
             }
 
         except Exception as e:
-            logger.error(f"Compatibility check failed: {e}")
+            logger.exception("Compatibility check failed", error=str(e))
             return {
                 "status": "error",
                 "error": str(e),
@@ -258,7 +257,7 @@ def register_tools(mcp: FastMCP, config: CSSMCPConfig) -> None:
             }
 
         except Exception as e:
-            logger.error(f"Property search failed: {e}")
+            logger.exception("Property search failed", error=str(e))
             return {
                 "status": "error",
                 "error": str(e),
@@ -301,7 +300,9 @@ def register_tools(mcp: FastMCP, config: CSSMCPConfig) -> None:
             }
 
         except Exception as e:
-            logger.error(f"Failed to get properties for category {category}: {e}")
+            logger.exception(
+                "Failed to get properties for category", category=category, error=str(e)
+            )
             return {
                 "status": "error",
                 "error": str(e),
@@ -380,7 +381,7 @@ def register_tools(mcp: FastMCP, config: CSSMCPConfig) -> None:
                     )
 
                 except Exception as e:
-                    logger.warning(f"Failed to analyze {css_file}: {e}")
+                    logger.warning("Failed to analyze CSS file", file=str(css_file), error=str(e))
 
             # Analyze combined CSS
             combined_analyzer = CSSAnalyzer()
@@ -397,7 +398,7 @@ def register_tools(mcp: FastMCP, config: CSSMCPConfig) -> None:
             }
 
         except Exception as e:
-            logger.error(f"Project analysis failed: {e}")
+            logger.exception("Project analysis failed", error=str(e))
             return {
                 "status": "error",
                 "error": str(e),
@@ -471,4 +472,4 @@ def register_tools(mcp: FastMCP, config: CSSMCPConfig) -> None:
             ],
         }
 
-    logger.info("Registered 9 CSS analysis tools")
+    logger.info("Registered CSS analysis tools", count=9)

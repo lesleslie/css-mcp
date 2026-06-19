@@ -1,0 +1,12 @@
+server_name: css-mcp
+log_level: INFO
+cache_root: .oneiric_cache
+health_ttl_seconds: 60.0
+
+http_host: localhost
+http_port: 3050
+cache_ttl: 86400
+mdn_timeout: 10.0
+complexity_threshold: 80
+specificity_threshold: 100
+fastblocks_integration: false

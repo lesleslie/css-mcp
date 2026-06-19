@@ -57,6 +57,10 @@ dmypy.json
 # Cache
 .css_mcp_cache/
 .cache/
+.oneiric_cache/
+
+# Local settings overrides
+settings/local.yaml
 
 # OS
 .DS_Store
