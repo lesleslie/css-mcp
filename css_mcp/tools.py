@@ -12,6 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from mcp_common.health import register_http_health_route
 from oneiric.core.logging import get_logger
 from pydantic import BaseModel, Field, field_validator
 
@@ -472,16 +473,6 @@ def register_tools(mcp: FastMCP, config: CSSMCPSettings) -> None:
             ],
         }
 
-    @mcp.custom_route("/health", methods=["GET"])
-    async def http_health(request: Any) -> Any:
-        """HTTP /health endpoint for launchd wrappers and orchestrators.
-
-        Returns the same JSON shape as the other Bodai MCP servers
-        (mahavishnu/akosha/dhara/session-buddy/crackerjack) so the
-        shared `launch_with_healthcheck.sh` wrapper can poll uniformly.
-        """
-        from starlette.responses import JSONResponse
-
-        return JSONResponse({"status": "ok", "service": "css-mcp", "version": "0.1.0"})
+    register_http_health_route(mcp, service_name="css-mcp", version="0.1.0")
 
     logger.info("Registered CSS analysis tools", count=9)
