@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import os
 from enum import StrEnum
+from pathlib import Path
+from typing import Any, ClassVar
 
-from mcp_common import MCPServerSettings
+import yaml
+from oneiric.core.config import OneiricMCPConfig
 from pydantic import BaseModel, Field
 
 
-class CSSMCPSettings(MCPServerSettings):
-    """CSS MCP Server configuration extending MCPServerSettings.
+class CSSMCPSettings(OneiricMCPConfig):
+    """CSS MCP Server configuration extending OneiricMCPConfig.
 
     Loaded in priority order (highest to lowest):
     1. Environment variables (CSS_MCP_*)
@@ -17,6 +21,12 @@ class CSSMCPSettings(MCPServerSettings):
     3. settings/css-mcp.yaml (checked into repo)
     4. Defaults defined below
     """
+
+    model_config = {  # type: ignore[reportUnknownMemberType]
+        "env_prefix": "CSS_MCP_",
+        "env_file": ".env",
+        "extra": "ignore",
+    }
 
     server_name: str = "css-mcp"
 
@@ -67,6 +77,81 @@ class CSSMCPSettings(MCPServerSettings):
     fastblocks_path: str | None = Field(
         default=None, description="Path to FastBlocks project for integration"
     )
+
+    LEGACY_ENV_PREFIX: ClassVar[str] = "CSS_MCP"
+
+    @classmethod
+    def load(
+        cls,
+        server_name: str = "css-mcp",
+        config_path: Path | None = None,
+        env_prefix: str | None = None,
+    ) -> CSSMCPSettings:
+        """Load settings with layered configuration.
+
+        Backward-compatible with the MCPBaseSettings.load() signature. Reads
+        YAML files in priority order, then applies environment variable
+        overrides using the provided env_prefix.
+
+        Priority (highest to lowest):
+        1. Explicit config_path (if provided)
+        2. Environment variables ({env_prefix}_{FIELD})
+        3. settings/local.yaml (gitignored)
+        4. settings/{server_name}.yaml
+        5. Defaults defined below
+
+        Args:
+            server_name: Server identifier (default: 'css-mcp')
+            config_path: Optional explicit config file path
+            env_prefix: Environment variable prefix (default: 'CSS_MCP')
+        """
+        if env_prefix is None:
+            env_prefix = cls.LEGACY_ENV_PREFIX
+
+        data: dict[str, Any] = {"server_name": server_name}
+
+        # Layer 1: settings/{server_name}.yaml
+        server_yaml = Path("settings") / f"{server_name}.yaml"
+        if server_yaml.exists():
+            with server_yaml.open() as f:
+                yaml_data = yaml.safe_load(f)
+            if isinstance(yaml_data, dict):
+                data.update(yaml_data)
+
+        # Layer 2: settings/local.yaml
+        local_yaml = Path("settings") / "local.yaml"
+        if local_yaml.exists():
+            with local_yaml.open() as f:
+                local_data = yaml.safe_load(f)
+            if isinstance(local_data, dict):
+                data.update(local_data)
+
+        # Layer 3: Environment variables
+        for field_name in cls.model_fields:
+            env_var = f"{env_prefix}_{field_name.upper()}"
+            if env_var in os.environ:
+                env_value: str | Path | None = os.environ[env_var]
+                field_def = cls.model_fields[field_name]
+                field_type = field_def.annotation
+                field_args = ()
+                try:
+                    from typing import get_args as _get_args
+
+                    field_args = _get_args(field_type)
+                except Exception:
+                    pass
+                if field_type is Path or (field_args and Path in field_args):
+                    env_value = Path(env_value) if env_value else None
+                data[field_name] = env_value
+
+        # Layer 4: Explicit config path (highest priority)
+        if config_path is not None and config_path.exists():
+            with config_path.open() as f:
+                explicit_data = yaml.safe_load(f)
+            if isinstance(explicit_data, dict):
+                data.update(explicit_data)
+
+        return cls.model_validate(data)
 
 
 # Backward-compatible alias — existing imports of CSSMCPConfig continue to work

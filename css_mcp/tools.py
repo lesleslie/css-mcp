@@ -20,7 +20,7 @@ from css_mcp.compat import BrowserCompatChecker
 from css_mcp.mdn_fetcher import get_mdn_fetcher
 
 if TYPE_CHECKING:
-    from fastmcp import FastMCP
+    from mcp_common.fastmcp import FastMCP
 
     from css_mcp.config import CSSMCPSettings
 

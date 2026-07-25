@@ -20,9 +20,9 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "fastmcp>=0.6.0",
+    "fastmcp>=3.4.0,<4",
     "httpx~=0.28.1",
-    "mcp-common~=0.16.4",
+    "mcp-common>=0.17.0",
     "pydantic~=2.13.4",
     "tinycss2~=1.5.1",
 ]
@@ -57,6 +57,9 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+
+[tool.uv.sources]
+mcp-common = { path = "../mcp-common", editable = true }
 
 [dependency-groups]
 dev = [

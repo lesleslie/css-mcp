@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, cast
 
-from fastmcp import FastMCP
+from mcp_common.fastmcp import FastMCP
 from oneiric.core.logging import get_logger
 
 from css_mcp.config import CSSMCPSettings
@@ -54,7 +54,7 @@ def run_server(settings: CSSMCPSettings) -> None:
     )
 
     _mcp.run(
-        transport="http",
+        transport="streamable-http",
         host=settings.http_host,
         port=settings.http_port,
     )
