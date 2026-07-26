@@ -23,7 +23,7 @@ class CSSMCPSettings(OneiricMCPConfig):
     4. Defaults defined below
     """
 
-    model_config = {  # type: ignore[reportUnknownMemberType]
+    model_config = {
         "env_prefix": "CSS_MCP_",
         "env_file": ".env",
         "extra": "ignore",
