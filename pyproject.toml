@@ -23,6 +23,7 @@ dependencies = [
     "fastmcp>=3.4.0,<4",
     "httpx~=0.28.1",
     "mcp-common>=0.17.0",
+    "oneiric>=0.16.0",
     "pydantic~=2.13.4",
     "tinycss2~=1.5.1",
 ]

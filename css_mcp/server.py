@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import Any
 
 from mcp_common.fastmcp import FastMCP
 from oneiric.core.logging import get_logger
@@ -64,7 +64,7 @@ def get_app() -> FastMCP:
     """Get or create the FastMCP server instance (lazy init for uvicorn compatibility)."""
     global _mcp
     if _mcp is None:
-        settings = cast("CSSMCPSettings", CSSMCPSettings.load("css-mcp", env_prefix="CSS_MCP"))
+        settings = CSSMCPSettings.load("css-mcp", env_prefix="CSS_MCP")
         _mcp = create_server(settings)
     return _mcp
 

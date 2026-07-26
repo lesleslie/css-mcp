@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import contextlib
-from typing import cast
 
-from mcp_common import MCPServerCLIFactory, RuntimeHealthSnapshot
+from mcp_common import MCPServerCLIFactory, MCPServerSettings, RuntimeHealthSnapshot
 
 from css_mcp.config import CSSMCPSettings
 
 
-def _health_probe(settings: CSSMCPSettings) -> RuntimeHealthSnapshot:
+def _health_probe(settings: MCPServerSettings) -> RuntimeHealthSnapshot:
     pid_path = settings.pid_path()
     pid: int | None = None
     if pid_path.exists():
@@ -23,18 +22,19 @@ def _health_probe(settings: CSSMCPSettings) -> RuntimeHealthSnapshot:
 
 
 def create_css_mcp_cli() -> MCPServerCLIFactory:
-    settings = cast("CSSMCPSettings", CSSMCPSettings.load("css-mcp", env_prefix="CSS_MCP"))
+    css_settings = CSSMCPSettings.load("css-mcp", env_prefix="CSS_MCP")
+    server_settings = MCPServerSettings.load("css-mcp")
 
     def start_handler() -> None:
         from css_mcp.server import run_server
 
-        run_server(settings)
+        run_server(css_settings)
 
     return MCPServerCLIFactory(
-        server_name=settings.server_name,
-        settings=settings,
+        server_name=server_settings.server_name,
+        settings=server_settings,
         start_handler=start_handler,
-        health_probe_handler=lambda: _health_probe(settings),
+        health_probe_handler=lambda: _health_probe(server_settings),
     )
 
 

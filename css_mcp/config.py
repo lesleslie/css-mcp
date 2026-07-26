@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from contextlib import suppress
 from enum import StrEnum
 from pathlib import Path
 from typing import Any, ClassVar
@@ -134,12 +135,10 @@ class CSSMCPSettings(OneiricMCPConfig):
                 field_def = cls.model_fields[field_name]
                 field_type = field_def.annotation
                 field_args = ()
-                try:
+                with suppress(Exception):
                     from typing import get_args as _get_args
 
                     field_args = _get_args(field_type)
-                except Exception:
-                    pass
                 if field_type is Path or (field_args and Path in field_args):
                     env_value = Path(env_value) if env_value else None
                 data[field_name] = env_value
