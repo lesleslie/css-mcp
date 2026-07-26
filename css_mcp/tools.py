@@ -16,6 +16,7 @@ from mcp_common.health import register_http_health_route
 from oneiric.core.logging import get_logger
 from pydantic import BaseModel, Field, field_validator
 
+from css_mcp import __version__
 from css_mcp.analyzer import CSSAnalyzer
 from css_mcp.compat import BrowserCompatChecker
 from css_mcp.mdn_fetcher import get_mdn_fetcher
@@ -473,6 +474,6 @@ def register_tools(mcp: FastMCP, config: CSSMCPSettings) -> None:
             ],
         }
 
-    register_http_health_route(mcp, service_name="css-mcp", version="0.1.0")
+    register_http_health_route(mcp, service_name="css-mcp", version=__version__)
 
     logger.info("Registered CSS analysis tools", count=9)
