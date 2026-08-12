@@ -1,0 +1,16 @@
+prefilter = '''
+filter.matchesAny(attributes["path"], [
+  `(?:^|/)\.crackerjack/uv/cache/.*$`,
+  `(?:^|/)\.venv/.*$`,
+  `(?:^|/)venv/.*$`,
+  `(?:^|/)\.git/.*$`,
+  `(?:^|/)\.cache/.*$`,
+  `(?:^|/)node_modules(?:/.*)?$`,
+  `(?:^|/)dist(?:/.*)?$`,
+  `(?:^|/)build(?:/.*)?$`,
+  `(?:^|/)\.mypy_cache(?:/.*)?$`,
+  `(?:^|/)\.ruff_cache(?:/.*)?$`,
+  `(?:^|/)\.pytest_cache(?:/.*)?$`,
+  `(?:^|/)\.oneiric_cache(?:/.*)?$`,
+])
+'''
