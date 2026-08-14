@@ -37,15 +37,18 @@ The server is built on FastMCP and follows a modular architecture:
 css_mcp/
 ├── server.py      # MCP server entry point, tool registration
 ├── tools.py       # Tool implementations with Pydantic input models
-├── analyzer.py    # Core CSS analysis engine (150+ metrics)
+├── analyzer.py    # Core CSS analysis engine (~150 derived metrics over 78 CSSMetrics fields)
 ├── mdn_fetcher.py # MDN Web Docs documentation fetcher
 ├── compat.py      # Browser compatibility checker
-└── config.py      # Configuration with environment variable support
+├── config.py      # Configuration with environment variable support
+├── cli.py         # Console-script entry (css-mcp) wired to mcp-common factory
+├── __main__.py    # `python -m css_mcp` entry point
+└── __init__.py    # Package metadata (CSSAnalyzer, CSSMetrics, CSSMCPSettings exports)
 ```
 
 ### Key Components
 
-**CSSAnalyzer** (`analyzer.py`): The core analysis engine that parses CSS using tinycss2 and computes 150+ metrics including:
+**CSSAnalyzer** (`analyzer.py`): The core analysis engine that parses CSS using tinycss2 and computes ~150 derived metrics (78 `CSSMetrics` fields plus selector/property counters) including:
 
 - Complexity scores (0-100)
 - Specificity analysis with distribution
@@ -61,7 +64,7 @@ css_mcp/
 
 | Tool | Purpose |
 |------|---------|
-| `analyze_css` | Full CSS analysis with 150+ metrics |
+| `analyze_css` | Full CSS analysis with ~150 derived metrics |
 | `analyze_css_summary` | Quick summary (faster) |
 | `get_docs` | MDN documentation for CSS properties |
 | `get_browser_compatibility` | Browser support checking |
@@ -84,8 +87,7 @@ Environment variables (prefix: `CSS_MCP_`):
 ## Dependencies
 
 - **fastmcp**: MCP server framework
-- **tinycss2**: CSS parsing
-- **cssselect**: Selector parsing
+- **tinycss2**: CSS parsing (covers both selector parsing and AST analysis)
 - **httpx**: Async HTTP for MDN fetching
 - **pydantic**: Data validation
 - **mcp-common**: Shared MCP utilities

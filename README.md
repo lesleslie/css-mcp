@@ -6,11 +6,11 @@
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Python: 3.13+](https://img.shields.io/badge/python-3.13%2B-green)](https://www.python.org/downloads/)
 
-Universal CSS Analysis and Documentation MCP Server. Analyze any CSS with 150+ metrics for complexity, specificity, and quality.
+Universal CSS Analysis and Documentation MCP Server. Analyze any CSS with ~150 derived metrics (built on ~78 `CSSMetrics` fields plus selector/property counters) for complexity, specificity, and quality.
 
 ## Features
 
-- **CSS Analysis**: 150+ metrics for CSS complexity, specificity, and quality
+- **CSS Analysis**: ~150 derived metrics (78 `CSSMetrics` fields plus selector/property counters) for CSS complexity, specificity, and quality
 - **MDN Documentation**: Fetch CSS property docs from MDN Web Docs
 - **Browser Compatibility**: Check cross-browser support for CSS properties
 - **Project Analysis**: Analyze all CSS files in a project
@@ -43,13 +43,13 @@ python -m css_mcp.server
 |----------|---------|-------------|
 | `CSS_MCP_HTTP_PORT` | 3050 | Server port |
 | `CSS_MCP_HTTP_HOST` | localhost | Server host |
-| `CSS_MCP_DEBUG` | false | Enable debug mode |
+| `CSS_MCP_DEBUG` | false | Inherited Oneiric debug flag; sets the field on `CSSMCPSettings` but has no local behavioral effect (no code path in `css_mcp/` reads `settings.debug` yet). Wire-up is tracked as a follow-up. |
 
 ## Available Tools
 
 | Tool | Description |
 |------|-------------|
-| `analyze_css` | Full CSS analysis with 150+ metrics |
+| `analyze_css` | Full CSS analysis with ~150 derived metrics |
 | `analyze_css_summary` | Quick CSS summary (faster) |
 | `get_docs` | MDN documentation for CSS properties |
 | `get_browser_compatibility` | Check browser support for properties |
@@ -81,7 +81,7 @@ suggestions = analyzer.get_suggestions()
 
 ## Metrics
 
-The analyzer provides 150+ metrics including:
+The analyzer provides ~150 derived metrics (built from 78 `CSSMetrics` fields plus selector and property counters), including:
 
 ### Basic Metrics
 
