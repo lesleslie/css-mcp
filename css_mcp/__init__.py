@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-__version__ = "0.1.0"
+from importlib.metadata import version as _importlib_version
+
+__version__ = _importlib_version("css-mcp")
 __author__ = "Les Leslie"
 
 from css_mcp.analyzer import CSSAnalyzer, CSSMetrics, CSSProperty
