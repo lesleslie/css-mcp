@@ -1,242 +1,5 @@
 {
   "complexity": {
-    "Functions": [
-      {
-        "Name": "CSSMCPSettings.load",
-        "FilePath": "css_mcp/config.py",
-        "StartLine": 85,
-        "StartColumn": 4,
-        "EndLine": 153,
-        "Metrics": {
-          "Complexity": 15,
-          "Nodes": 38,
-          "Edges": 53,
-          "NestingDepth": 3,
-          "IfStatements": 10,
-          "LoopStatements": 1,
-          "ExceptionHandlers": 4,
-          "SwitchCases": 0
-        },
-        "RiskLevel": "medium"
-      },
-      {
-        "Name": "CSSAnalyzer._analyze_value",
-        "FilePath": "css_mcp/analyzer.py",
-        "StartLine": 809,
-        "StartColumn": 4,
-        "EndLine": 844,
-        "Metrics": {
-          "Complexity": 11,
-          "Nodes": 21,
-          "Edges": 32,
-          "NestingDepth": 1,
-          "IfStatements": 10,
-          "LoopStatements": 0,
-          "ExceptionHandlers": 0,
-          "SwitchCases": 0
-        },
-        "RiskLevel": "medium"
-      },
-      {
-        "Name": "BrowserCompatChecker.check_property",
-        "FilePath": "css_mcp/compat.py",
-        "StartLine": 335,
-        "StartColumn": 4,
-        "EndLine": 416,
-        "Metrics": {
-          "Complexity": 11,
-          "Nodes": 25,
-          "Edges": 36,
-          "NestingDepth": 4,
-          "IfStatements": 9,
-          "LoopStatements": 1,
-          "ExceptionHandlers": 1,
-          "SwitchCases": 0
-        },
-        "RiskLevel": "medium"
-      },
-      {
-        "Name": "CSSAnalyzer._update_selector_metrics",
-        "FilePath": "css_mcp/analyzer.py",
-        "StartLine": 733,
-        "StartColumn": 4,
-        "EndLine": 758,
-        "Metrics": {
-          "Complexity": 9,
-          "Nodes": 17,
-          "Edges": 26,
-          "NestingDepth": 1,
-          "IfStatements": 8,
-          "LoopStatements": 0,
-          "ExceptionHandlers": 0,
-          "SwitchCases": 0
-        },
-        "RiskLevel": "low"
-      },
-      {
-        "Name": "CSSAnalyzer._calculate_complexity",
-        "FilePath": "css_mcp/analyzer.py",
-        "StartLine": 846,
-        "StartColumn": 4,
-        "EndLine": 922,
-        "Metrics": {
-          "Complexity": 9,
-          "Nodes": 20,
-          "Edges": 29,
-          "NestingDepth": 2,
-          "IfStatements": 8,
-          "LoopStatements": 2,
-          "ExceptionHandlers": 0,
-          "SwitchCases": 0
-        },
-        "RiskLevel": "low"
-      },
-      {
-        "Name": "CSSAnalyzer._update_property_metrics",
-        "FilePath": "css_mcp/analyzer.py",
-        "StartLine": 760,
-        "StartColumn": 4,
-        "EndLine": 807,
-        "Metrics": {
-          "Complexity": 7,
-          "Nodes": 13,
-          "Edges": 20,
-          "NestingDepth": 2,
-          "IfStatements": 6,
-          "LoopStatements": 0,
-          "ExceptionHandlers": 0,
-          "SwitchCases": 0
-        },
-        "RiskLevel": "low"
-      },
-      {
-        "Name": "CSSAnalyzer.get_suggestions",
-        "FilePath": "css_mcp/analyzer.py",
-        "StartLine": 993,
-        "StartColumn": 4,
-        "EndLine": 1063,
-        "Metrics": {
-          "Complexity": 7,
-          "Nodes": 13,
-          "Edges": 20,
-          "NestingDepth": 1,
-          "IfStatements": 6,
-          "LoopStatements": 0,
-          "ExceptionHandlers": 0,
-          "SwitchCases": 0
-        },
-        "RiskLevel": "low"
-      },
-      {
-        "Name": "CSSAnalyzer._find_duplicates",
-        "FilePath": "css_mcp/analyzer.py",
-        "StartLine": 957,
-        "StartColumn": 4,
-        "EndLine": 976,
-        "Metrics": {
-          "Complexity": 6,
-          "Nodes": 17,
-          "Edges": 23,
-          "NestingDepth": 2,
-          "IfStatements": 5,
-          "LoopStatements": 4,
-          "ExceptionHandlers": 0,
-          "SwitchCases": 0
-        },
-        "RiskLevel": "low"
-      },
-      {
-        "Name": "CSSAnalyzer._update_combinator_metrics",
-        "FilePath": "css_mcp/analyzer.py",
-        "StartLine": 716,
-        "StartColumn": 4,
-        "EndLine": 731,
-        "Metrics": {
-          "Complexity": 5,
-          "Nodes": 10,
-          "Edges": 15,
-          "NestingDepth": 3,
-          "IfStatements": 4,
-          "LoopStatements": 1,
-          "ExceptionHandlers": 0,
-          "SwitchCases": 0
-        },
-        "RiskLevel": "low"
-      },
-      {
-        "Name": "CSSAnalyzer._update_specificity_metrics",
-        "FilePath": "css_mcp/analyzer.py",
-        "StartLine": 700,
-        "StartColumn": 4,
-        "EndLine": 714,
-        "Metrics": {
-          "Complexity": 5,
-          "Nodes": 9,
-          "Edges": 14,
-          "NestingDepth": 1,
-          "IfStatements": 4,
-          "LoopStatements": 0,
-          "ExceptionHandlers": 0,
-          "SwitchCases": 0
-        },
-        "RiskLevel": "low"
-      },
-      {
-        "Name": "CSSAnalyzer._calculate_efficiency",
-        "FilePath": "css_mcp/analyzer.py",
-        "StartLine": 924,
-        "StartColumn": 4,
-        "EndLine": 955,
-        "Metrics": {
-          "Complexity": 5,
-          "Nodes": 9,
-          "Edges": 14,
-          "NestingDepth": 1,
-          "IfStatements": 4,
-          "LoopStatements": 0,
-          "ExceptionHandlers": 0,
-          "SwitchCases": 0
-        },
-        "RiskLevel": "low"
-      },
-      {
-        "Name": "BrowserCompatChecker.get_compatibility_summary",
-        "FilePath": "css_mcp/compat.py",
-        "StartLine": 483,
-        "StartColumn": 4,
-        "EndLine": 536,
-        "Metrics": {
-          "Complexity": 5,
-          "Nodes": 11,
-          "Edges": 16,
-          "NestingDepth": 3,
-          "IfStatements": 4,
-          "LoopStatements": 1,
-          "ExceptionHandlers": 0,
-          "SwitchCases": 0
-        },
-        "RiskLevel": "low"
-      }
-    ],
-    "Summary": {
-      "TotalFunctions": 12,
-      "AverageComplexity": 7.916666666666667,
-      "MaxComplexity": 15,
-      "MinComplexity": 5,
-      "FilesAnalyzed": 9,
-      "LowRiskFunctions": 9,
-      "MediumRiskFunctions": 3,
-      "HighRiskFunctions": 0,
-      "ComplexityDistribution": {
-        "11-20": 3,
-        "2-5": 4,
-        "6-10": 5
-      }
-    },
-    "Warnings": null,
-    "Errors": null,
-    "GeneratedAt": "2026-08-14T00:42:57-07:00",
-    "Version": "1.5.0",
     "Config": {
       "exclude_patterns": [
         "test_*.py",
@@ -253,28 +16,246 @@
       "recursive": false,
       "show_details": false,
       "sort_by": "complexity"
-    }
+    },
+    "Errors": null,
+    "Functions": [
+      {
+        "EndLine": 153,
+        "FilePath": "css_mcp/config.py",
+        "Metrics": {
+          "Complexity": 15,
+          "Edges": 53,
+          "ExceptionHandlers": 4,
+          "IfStatements": 10,
+          "LoopStatements": 1,
+          "NestingDepth": 3,
+          "Nodes": 38,
+          "SwitchCases": 0
+        },
+        "Name": "CSSMCPSettings.load",
+        "RiskLevel": "medium",
+        "StartColumn": 4,
+        "StartLine": 85
+      },
+      {
+        "EndLine": 844,
+        "FilePath": "css_mcp/analyzer.py",
+        "Metrics": {
+          "Complexity": 11,
+          "Edges": 32,
+          "ExceptionHandlers": 0,
+          "IfStatements": 10,
+          "LoopStatements": 0,
+          "NestingDepth": 1,
+          "Nodes": 21,
+          "SwitchCases": 0
+        },
+        "Name": "CSSAnalyzer._analyze_value",
+        "RiskLevel": "medium",
+        "StartColumn": 4,
+        "StartLine": 809
+      },
+      {
+        "EndLine": 416,
+        "FilePath": "css_mcp/compat.py",
+        "Metrics": {
+          "Complexity": 11,
+          "Edges": 36,
+          "ExceptionHandlers": 1,
+          "IfStatements": 9,
+          "LoopStatements": 1,
+          "NestingDepth": 4,
+          "Nodes": 25,
+          "SwitchCases": 0
+        },
+        "Name": "BrowserCompatChecker.check_property",
+        "RiskLevel": "medium",
+        "StartColumn": 4,
+        "StartLine": 335
+      },
+      {
+        "EndLine": 758,
+        "FilePath": "css_mcp/analyzer.py",
+        "Metrics": {
+          "Complexity": 9,
+          "Edges": 26,
+          "ExceptionHandlers": 0,
+          "IfStatements": 8,
+          "LoopStatements": 0,
+          "NestingDepth": 1,
+          "Nodes": 17,
+          "SwitchCases": 0
+        },
+        "Name": "CSSAnalyzer._update_selector_metrics",
+        "RiskLevel": "low",
+        "StartColumn": 4,
+        "StartLine": 733
+      },
+      {
+        "EndLine": 922,
+        "FilePath": "css_mcp/analyzer.py",
+        "Metrics": {
+          "Complexity": 9,
+          "Edges": 29,
+          "ExceptionHandlers": 0,
+          "IfStatements": 8,
+          "LoopStatements": 2,
+          "NestingDepth": 2,
+          "Nodes": 20,
+          "SwitchCases": 0
+        },
+        "Name": "CSSAnalyzer._calculate_complexity",
+        "RiskLevel": "low",
+        "StartColumn": 4,
+        "StartLine": 846
+      },
+      {
+        "EndLine": 807,
+        "FilePath": "css_mcp/analyzer.py",
+        "Metrics": {
+          "Complexity": 7,
+          "Edges": 20,
+          "ExceptionHandlers": 0,
+          "IfStatements": 6,
+          "LoopStatements": 0,
+          "NestingDepth": 2,
+          "Nodes": 13,
+          "SwitchCases": 0
+        },
+        "Name": "CSSAnalyzer._update_property_metrics",
+        "RiskLevel": "low",
+        "StartColumn": 4,
+        "StartLine": 760
+      },
+      {
+        "EndLine": 1063,
+        "FilePath": "css_mcp/analyzer.py",
+        "Metrics": {
+          "Complexity": 7,
+          "Edges": 20,
+          "ExceptionHandlers": 0,
+          "IfStatements": 6,
+          "LoopStatements": 0,
+          "NestingDepth": 1,
+          "Nodes": 13,
+          "SwitchCases": 0
+        },
+        "Name": "CSSAnalyzer.get_suggestions",
+        "RiskLevel": "low",
+        "StartColumn": 4,
+        "StartLine": 993
+      },
+      {
+        "EndLine": 976,
+        "FilePath": "css_mcp/analyzer.py",
+        "Metrics": {
+          "Complexity": 6,
+          "Edges": 23,
+          "ExceptionHandlers": 0,
+          "IfStatements": 5,
+          "LoopStatements": 4,
+          "NestingDepth": 2,
+          "Nodes": 17,
+          "SwitchCases": 0
+        },
+        "Name": "CSSAnalyzer._find_duplicates",
+        "RiskLevel": "low",
+        "StartColumn": 4,
+        "StartLine": 957
+      },
+      {
+        "EndLine": 731,
+        "FilePath": "css_mcp/analyzer.py",
+        "Metrics": {
+          "Complexity": 5,
+          "Edges": 15,
+          "ExceptionHandlers": 0,
+          "IfStatements": 4,
+          "LoopStatements": 1,
+          "NestingDepth": 3,
+          "Nodes": 10,
+          "SwitchCases": 0
+        },
+        "Name": "CSSAnalyzer._update_combinator_metrics",
+        "RiskLevel": "low",
+        "StartColumn": 4,
+        "StartLine": 716
+      },
+      {
+        "EndLine": 714,
+        "FilePath": "css_mcp/analyzer.py",
+        "Metrics": {
+          "Complexity": 5,
+          "Edges": 14,
+          "ExceptionHandlers": 0,
+          "IfStatements": 4,
+          "LoopStatements": 0,
+          "NestingDepth": 1,
+          "Nodes": 9,
+          "SwitchCases": 0
+        },
+        "Name": "CSSAnalyzer._update_specificity_metrics",
+        "RiskLevel": "low",
+        "StartColumn": 4,
+        "StartLine": 700
+      },
+      {
+        "EndLine": 955,
+        "FilePath": "css_mcp/analyzer.py",
+        "Metrics": {
+          "Complexity": 5,
+          "Edges": 14,
+          "ExceptionHandlers": 0,
+          "IfStatements": 4,
+          "LoopStatements": 0,
+          "NestingDepth": 1,
+          "Nodes": 9,
+          "SwitchCases": 0
+        },
+        "Name": "CSSAnalyzer._calculate_efficiency",
+        "RiskLevel": "low",
+        "StartColumn": 4,
+        "StartLine": 924
+      },
+      {
+        "EndLine": 536,
+        "FilePath": "css_mcp/compat.py",
+        "Metrics": {
+          "Complexity": 5,
+          "Edges": 16,
+          "ExceptionHandlers": 0,
+          "IfStatements": 4,
+          "LoopStatements": 1,
+          "NestingDepth": 3,
+          "Nodes": 11,
+          "SwitchCases": 0
+        },
+        "Name": "BrowserCompatChecker.get_compatibility_summary",
+        "RiskLevel": "low",
+        "StartColumn": 4,
+        "StartLine": 483
+      }
+    ],
+    "GeneratedAt": "2026-08-14T00:42:57-07:00",
+    "Summary": {
+      "AverageComplexity": 7.916666666666667,
+      "ComplexityDistribution": {
+        "11-20": 3,
+        "2-5": 4,
+        "6-10": 5
+      },
+      "FilesAnalyzed": 9,
+      "HighRiskFunctions": 0,
+      "LowRiskFunctions": 9,
+      "MaxComplexity": 15,
+      "MediumRiskFunctions": 3,
+      "MinComplexity": 5,
+      "TotalFunctions": 12
+    },
+    "Version": "1.5.0",
+    "Warnings": null
   },
   "dead_code": {
-    "files": null,
-    "summary": {
-      "total_files": 9,
-      "total_functions": 0,
-      "total_findings": 0,
-      "files_with_dead_code": 0,
-      "functions_with_dead_code": 0,
-      "critical_findings": 0,
-      "warning_findings": 0,
-      "info_findings": 0,
-      "findings_by_reason": {},
-      "total_blocks": 0,
-      "dead_blocks": 0,
-      "overall_dead_ratio": 0
-    },
-    "warnings": null,
-    "errors": null,
-    "generated_at": "2026-08-14T00:42:57-07:00",
-    "version": "1.5.0",
     "config": {
       "context_lines": 3,
       "detect_after_break": true,
@@ -293,48 +274,67 @@
       "min_severity": "warning",
       "show_context": false,
       "sort_by": "severity"
-    }
+    },
+    "errors": null,
+    "files": null,
+    "generated_at": "2026-08-14T00:42:57-07:00",
+    "summary": {
+      "critical_findings": 0,
+      "dead_blocks": 0,
+      "files_with_dead_code": 0,
+      "findings_by_reason": {},
+      "functions_with_dead_code": 0,
+      "info_findings": 0,
+      "overall_dead_ratio": 0,
+      "total_blocks": 0,
+      "total_files": 9,
+      "total_findings": 0,
+      "total_functions": 0,
+      "warning_findings": 0
+    },
+    "version": "1.5.0",
+    "warnings": null
   },
-  "summary": {
-    "total_files": 9,
-    "analyzed_files": 9,
-    "skipped_files": 0,
-    "complexity_enabled": true,
-    "dead_code_enabled": true,
-    "clone_enabled": false,
-    "cbo_enabled": false,
-    "deps_enabled": false,
-    "arch_enabled": false,
-    "deps_total_modules": 0,
-    "deps_modules_in_cycles": 0,
-    "deps_max_depth": 0,
-    "deps_main_sequence_deviation": 0,
-    "arch_compliance": 0,
-    "total_functions": 12,
-    "average_complexity": 7.916666666666667,
-    "high_complexity_count": 0,
-    "dead_code_count": 0,
-    "critical_dead_code": 0,
-    "warning_dead_code": 0,
-    "info_dead_code": 0,
-    "total_clones": 0,
-    "clone_pairs": 0,
-    "clone_groups": 0,
-    "code_duplication_percentage": 0,
-    "cbo_classes": 0,
-    "high_coupling_classes": 0,
-    "medium_coupling_classes": 0,
-    "average_coupling": 0,
-    "health_score": 91,
-    "grade": "A",
-    "complexity_score": 55,
-    "dead_code_score": 100,
-    "duplication_score": 100,
-    "coupling_score": 100,
-    "dependency_score": 100,
-    "architecture_score": 100
-  },
-  "generated_at": "2026-08-14T00:42:57.11575-07:00",
   "duration_ms": 209,
+  "generated_at": "2026-08-14T00:42:57.11575-07:00",
+  "summary": {
+    "analyzed_files": 9,
+    "arch_compliance": 0,
+    "arch_enabled": false,
+    "architecture_score": 100,
+    "average_complexity": 7.916666666666667,
+    "average_coupling": 0,
+    "cbo_classes": 0,
+    "cbo_enabled": false,
+    "clone_enabled": false,
+    "clone_groups": 0,
+    "clone_pairs": 0,
+    "code_duplication_percentage": 0,
+    "complexity_enabled": true,
+    "complexity_score": 55,
+    "coupling_score": 100,
+    "critical_dead_code": 0,
+    "dead_code_count": 0,
+    "dead_code_enabled": true,
+    "dead_code_score": 100,
+    "dependency_score": 100,
+    "deps_enabled": false,
+    "deps_main_sequence_deviation": 0,
+    "deps_max_depth": 0,
+    "deps_modules_in_cycles": 0,
+    "deps_total_modules": 0,
+    "duplication_score": 100,
+    "grade": "A",
+    "health_score": 91,
+    "high_complexity_count": 0,
+    "high_coupling_classes": 0,
+    "info_dead_code": 0,
+    "medium_coupling_classes": 0,
+    "skipped_files": 0,
+    "total_clones": 0,
+    "total_files": 9,
+    "total_functions": 12,
+    "warning_dead_code": 0
+  },
   "version": "1.5.0"
 }
