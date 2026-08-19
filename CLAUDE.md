@@ -37,7 +37,7 @@ The server is built on FastMCP and follows a modular architecture:
 css_mcp/
 ├── server.py      # MCP server entry point, async create_app + sync wrapper
 ├── tools/         # Tool implementations
-│   ├── __init__.py # Pydantic input models + register_tools (all 9 tools)
+│   ├── __init__.py # Pydantic input models + register_tools (all 9 tools) + register_health_tool (health probe)
 │   └── profiles.py # Tool profile dispatch (W4.1, mcp-common>=0.18.0)
 ├── analyzer.py    # Core CSS analysis engine (~150 derived metrics over 78 CSSMetrics fields)
 ├── mdn_fetcher.py # MDN Web Docs documentation fetcher
@@ -84,28 +84,40 @@ for the full rationale):
 
 | Profile | Tools | Env var |
 |------------|--------------------------------------|-------------------------------|
-| `MINIMAL` | 0 css tools + `discover_tools` | `CSS_TOOL_PROFILE=minimal` |
+| `MINIMAL` | `health_check` + `discover_tools` | `CSS_TOOL_PROFILE=minimal` |
 | `STANDARD` | All 9 tools + `discover_tools` | `CSS_TOOL_PROFILE=standard` |
 | `FULL` | All 9 tools + `discover_tools` | `CSS_TOOL_PROFILE=full` (default) |
 
-The `/health` HTTP route (registered via `register_http_health_route`)
-lives outside the W0 dispatch and is **always available** regardless of
-profile — it is load-bearing for the launchd wrapper that supervises
-this server. The pre-existing `tests/unit/test_health_route.py` test
-pins this invariant.
+The `/health` HTTP route is registered **inside `register_health_tool`**
+alongside the MCP `health_check` tool. It is available whenever
+`health_check` is — every profile that includes `health_tools`
+(MINIMAL, STANDARD, FULL). The route is load-bearing for the launchd
+wrapper that supervises this server; the pre-existing
+`tests/unit/test_health_route.py` test pins this invariant.
 
 ### Dispatch surface
 
 - `css_mcp/tools/profiles.py` — `PROFILE_REGISTRATIONS`,
-  `_GROUP_REGISTRY` (single source of truth), `apply_css_tool_profile`
+  `_GROUP_REGISTRY` (single source of truth — drives the registration
+  map AND the bulk registration loop), `apply_css_tool_profile`
   (async, the W2b.3 keystone entry point)
-- `css_mcp/server.py::create_app` — async production entry point
+- `css_mcp/tools/__init__.py::register_health_tool` — the canonical
+  health probe callable (registers the MCP `health_check` tool + the
+  HTTP `/health` route). Required for the W4.1 `MINIMAL=health` mapping.
+- `css_mcp/server.py::create_app` — async production entry point;
+  threads caller-supplied `settings` through to the registration paths
 - `css_mcp/server.py::create_server` — sync wrapper via `_run_async_safely`
   (works from both sync CLI startup and async test contexts)
-- `tests/unit/test_tool_profile.py` — 17 wiring tests + AST guard that
-  structurally checks for `await apply_css_tool_profile(app)` (NOT just
-  call count — counting `ast.Call` would be a tautology that passes
-  even if `await` is removed)
+- `tests/unit/test_tool_profile.py` — 28 wiring tests including:
+  - AST guard that structurally checks for
+    `await apply_css_tool_profile(server, settings)` (NOT just call
+    count — counting `ast.Call` would be a tautology that passes even
+    if `await` is removed)
+  - Two regression tests that monkey-patch `CSSMCPSettings.load` to
+    fail if any registration path silently re-loads settings from the
+    environment (the W4.1 round-1 regression)
+  - Strict-equality assertions on the registered tool set at each
+    profile (`tool_names == expected`, not `<=`)
 
 ## Configuration
 

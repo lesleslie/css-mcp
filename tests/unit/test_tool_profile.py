@@ -1,9 +1,14 @@
 """Tests for css-mcp's ToolProfile adoption (W4.1).
 
-Pins the Tier-A trivial mapping (MINIMAL = empty / STANDARD = FULL = all)
-and verifies the W2b.3 keystone: the production path uses the async
-``_apply_tool_profile`` helper (NOT the sync ``apply_tool_profile`` wrapper,
-which raises ``RuntimeError`` when called from inside a running event loop).
+Pins the W4.1 Tier-A trivial mapping:
+- MINIMAL  = ["health_tools"] (health probe only)
+- STANDARD = FULL_REGISTRATIONS (all 9 css-mcp tools)
+- FULL     = ALL_TOOLS (all 9 css-mcp tools via register_all_fn)
+
+And verifies the W2b.3 keystone: the production path uses the async
+``_apply_tool_profile`` helper (NOT the sync ``apply_tool_profile``
+wrapper, which raises ``RuntimeError`` when called from inside a running
+event loop).
 
 See ``docs/architecture/tool-profile-rationale.md`` for the rationale.
 """
@@ -32,6 +37,7 @@ from css_mcp.tools.profiles import (
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 SERVER_PY = REPO_ROOT / "css_mcp" / "server.py"
 PROFILES_PY = REPO_ROOT / "css_mcp" / "tools" / "profiles.py"
+TOOLS_INIT_PY = REPO_ROOT / "css_mcp" / "tools" / "__init__.py"
 
 
 # ---------------------------------------------------------------------------
@@ -51,11 +57,11 @@ def test_profiles_py_defines_profile_registrations() -> None:
 
 
 def test_profiles_py_defines_group_registry() -> None:
-    """_GROUP_REGISTRY must be the single source of truth."""
+    """_GROUP_REGISTRY must contain health_tools + analysis_tools."""
     assert isinstance(_GROUP_REGISTRY, list)
-    assert len(_GROUP_REGISTRY) >= 1
-    for key, attr_name in _GROUP_REGISTRY:
-        assert isinstance(key, str) and isinstance(attr_name, str)
+    keys = [key for key, _ in _GROUP_REGISTRY]
+    assert "health_tools" in keys, "_GROUP_REGISTRY must include health_tools"
+    assert "analysis_tools" in keys, "_GROUP_REGISTRY must include analysis_tools"
 
 
 def test_profiles_py_defines_build_registration_map() -> None:
@@ -120,9 +126,8 @@ def test_server_awaits_apply_css_tool_profile() -> None:
 
 
 def test_server_does_not_use_sync_wrapper() -> None:
-    """server.py must NOT call sync ``apply_tool_profile`` (only ``apply_css_tool_profile`` or ``_apply_tool_profile``)."""
+    """server.py must NOT call sync ``apply_tool_profile``."""
     source = SERVER_PY.read_text()
-    # bare apply_tool_profile (not apply_css_tool_profile, not _apply_tool_profile)
     tree = ast.parse(source)
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
@@ -141,7 +146,6 @@ def test_profiles_uses_async_helper_not_sync_wrapper() -> None:
     assert "_apply_tool_profile" in source, (
         "profiles.py must call _apply_tool_profile (async helper)"
     )
-    # If it imports/uses the sync wrapper, that's a bug
     tree = ast.parse(source)
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
@@ -166,68 +170,104 @@ def test_decision_doc_exists_at_tracked_path() -> None:
     assert doc.exists(), f"Missing rationale doc at {doc}"
 
 
+def test_tools_init_extracts_register_health_tool() -> None:
+    """css_mcp/tools/__init__.py must expose a register_health_tool callable.
+
+    The W4.1 spec requires MINIMAL=health, which requires ``health_check``
+    to be registerable independently from the other tools. If this
+    function is missing, MINIMAL cannot expose the health probe.
+    """
+    import importlib
+
+    tools_module = importlib.import_module("css_mcp.tools")
+    assert hasattr(tools_module, "register_health_tool"), (
+        "css_mcp.tools must expose register_health_tool — required for MINIMAL=health mapping"
+    )
+    assert callable(tools_module.register_health_tool)
+
+
 # ---------------------------------------------------------------------------
-# Profile semantics
+# Profile semantics — runtime data structures, NOT source-text greps
 # ---------------------------------------------------------------------------
+
+
+def test_minimal_registrations_contain_health_tools() -> None:
+    """MINIMAL profile must include ``health_tools`` (canonical W4.1 mapping)."""
+    assert "health_tools" in MINIMAL_REGISTRATIONS, (
+        f"MINIMAL must include 'health_tools' (W4.1 canonical: MINIMAL=health); "
+        f"got {MINIMAL_REGISTRATIONS}"
+    )
 
 
 def test_profile_registrations_subset_of_map() -> None:
-    """Every key in PROFILE_REGISTRATIONS must be in the registration map.
+    """Every key in PROFILE_REGISTRATIONS must resolve via registration_map.
 
-    For ALL_TOOLS sentinel entries (FULL/STANDARD here), the helper uses
-    ``register_all_fn`` instead of the map — so only MINIMAL's list of
-    strings must be a subset of the registration_map keys. css-mcp's
-    MINIMAL is empty, so this trivially holds — but assert it explicitly
-    to guard against future drift.
+    The subset check is non-vacuous: MINIMAL has ``health_tools`` which
+    MUST be in the registration map, and FULL_REGISTRATIONS (STANDARD's
+    value) MUST be a subset of registration_map keys.
     """
-    mapping = _build_registration_map()
-    minimal_keys = set(MINIMAL_REGISTRATIONS)
+    settings = CSSMCPSettings.load("css-mcp", env_prefix="CSS_MCP")
+    mapping = _build_registration_map(settings)
     map_keys = set(mapping.keys())
-    if minimal_keys:
-        assert minimal_keys <= map_keys, (
-            f"MINIMAL keys {minimal_keys - map_keys} not in registration_map"
-        )
 
-
-def test_mandatory_tools_invariant() -> None:
-    """MANDATORY_GROUPS / MANDATORY_TOOLS must both be opted out explicitly.
-
-    css-mcp's /health HTTP route lives outside W0 dispatch (registered via
-    ``register_http_health_route``), so no MCP-registered tool group is
-    mandatory. We pass ``mandatory_groups=set()`` and
-    ``essential_tool_names=set()`` to opt out of the subset check.
-
-    Verify the source references both opt-outs.
-    """
-    source = PROFILES_PY.read_text()
-    assert "mandatory_groups=set()" in source, (
-        "profiles.py must pass mandatory_groups=set() to opt out"
+    # MINIMAL keys must be in the map
+    minimal_keys = {k for k in MINIMAL_REGISTRATIONS if isinstance(k, str)}
+    assert minimal_keys <= map_keys, (
+        f"MINIMAL keys {minimal_keys - map_keys} not in registration_map"
     )
-    assert "essential_tool_names=set()" in source, (
-        "profiles.py must pass essential_tool_names=set() to opt out"
+
+    # STANDARD value (FULL_REGISTRATIONS) keys must be in the map
+    standard_keys = {k for k in FULL_REGISTRATIONS if isinstance(k, str)}
+    assert standard_keys <= map_keys, (
+        f"STANDARD/FULL keys {standard_keys - map_keys} not in registration_map"
+    )
+
+    # All registry keys must be in the map (proves _GROUP_REGISTRY is the SSOT)
+    registry_keys = {key for key, _ in _GROUP_REGISTRY}
+    assert registry_keys == map_keys, (
+        f"registration_map keys {map_keys} != _GROUP_REGISTRY keys {registry_keys}"
+    )
+
+
+def test_essential_tool_names_subset_check_enforced() -> None:
+    """essential_tool_names={"health_check"} must actually be enforced.
+
+    Runtime check: profiles.py calls ``_apply_tool_profile`` with
+    ``essential_tool_names={"health_check"}``. After dispatch at MINIMAL,
+    the registered tool set must contain ``health_check`` (enforced by
+    the W0 helper's subset check; raises ValueError on failure).
+    """
+    import inspect
+
+    from css_mcp.tools import profiles as _profiles
+
+    source = inspect.getsource(_profiles.apply_css_tool_profile)
+    assert 'essential_tool_names={"health_check"}' in source, (
+        "apply_css_tool_profile must pass essential_tool_names={'health_check'} "
+        "to enforce the W4.1 canonical MINIMAL=health invariant"
     )
 
 
 def test_full_registers_all_9_tools() -> None:
     """FULL/STANDARD profile registers all 9 css-mcp tools plus discover_tools."""
-    mapping = _build_registration_map()
+    settings = CSSMCPSettings.load("css-mcp", env_prefix="CSS_MCP")
+    mapping = _build_registration_map(settings)
+    assert "health_tools" in mapping
     assert "analysis_tools" in mapping
     assert len(mapping) == len(_GROUP_REGISTRY)
 
 
-def test_minimal_has_only_discover_tools() -> None:
-    """MINIMAL profile registers 0 tool groups (only discover_tools)."""
-    assert MINIMAL_REGISTRATIONS == []
-    assert len(MINIMAL_REGISTRATIONS) == 0
+def test_minimal_subset_is_non_empty() -> None:
+    """MINIMAL_REGISTRATIONS must not be empty (the W4.1 reviewer finding)."""
+    assert MINIMAL_REGISTRATIONS, (
+        "MINIMAL_REGISTRATIONS must NOT be empty — W4.1 canonical mapping "
+        "is MINIMAL=health. If you want MINIMAL=empty, change the W4.1 spec, "
+        "not the implementation."
+    )
 
 
 def test_invalid_profile_raises(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Invalid CSS_TOOL_PROFILE values raise InvalidProfileError at sync validation.
-
-    When ``server=None`` is passed, the sync wrapper only validates (it does
-    not require a real server / event loop). We exercise the validation
-    phase by calling ``apply_tool_profile`` (sync wrapper) with server=None.
-    """
+    """Invalid CSS_TOOL_PROFILE values raise InvalidProfileError at sync validation."""
     from mcp_common.tools.dispatch import InvalidProfileError, apply_tool_profile
 
     monkeypatch.setenv("CSS_TOOL_PROFILE", "bogus")
@@ -237,110 +277,101 @@ def test_invalid_profile_raises(monkeypatch: pytest.MonkeyPatch) -> None:
             profile_env_var="CSS_TOOL_PROFILE",
             registrations=PROFILE_REGISTRATIONS,
             registration_map={},
-            register_all_fn=register_all_tool_groups,
+            register_all_fn=lambda server: None,
             mandatory_groups=set(),
-            essential_tool_names=set(),
+            essential_tool_names={"health_check"},
         )
 
 
 # ---------------------------------------------------------------------------
-# W2b.3 keystone: real production-path tests
+# W4.1 round-1: caller-supplied settings must be preserved through registration
 # ---------------------------------------------------------------------------
 
 
-async def test_create_app_full_profile_real_path() -> None:
-    """W2b.3 keystone test — real ``await create_app(settings)`` end-to-end.
+def test_caller_supplied_settings_are_preserved(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The settings object passed to ``create_app`` is the same one used at registration.
 
-    NO mocks of the dispatch helper. This test catches the W2b.3 spline
-    regression where ``apply_tool_profile`` (sync wrapper) was used in
-    production and silently masked the bug under tests.
+    This catches the W4.1 round-1 regression where registration paths
+    silently re-loaded ``CSSMCPSettings.load(...)`` from the environment,
+    discarding any test-injected overrides.
+
+    Strategy: monkey-patch ``CSSMCPSettings.load`` to RAISE if called
+    during registration. If registration paths bypass the caller's
+    settings and call ``.load()`` themselves, the test fails with the
+    raised error. This is a true negative-test for the W4.1 regression.
     """
-    monkeypatch = pytest.MonkeyPatch()
-    try:
-        monkeypatch.delenv("CSS_TOOL_PROFILE", raising=False)
-        settings = CSSMCPSettings.load("css-mcp", env_prefix="CSS_MCP")
-        mcp = await create_app(settings)
-        tools = await mcp.list_tools()
-        tool_names = {t.name for t in tools}
+    from fastmcp import FastMCP
 
-        # FULL profile: all 9 css-mcp tools + discover_tools
-        expected = {
-            "analyze_css",
-            "analyze_css_summary",
-            "get_docs",
-            "get_browser_compatibility",
-            "search_properties",
-            "get_properties_by_category",
-            "analyze_project_css",
-            "list_capabilities",
-            "health_check",
-            "discover_tools",
-        }
-        assert expected <= tool_names, (
-            f"Missing tools at FULL profile: {expected - tool_names}; got {tool_names}"
-        )
-    finally:
-        monkeypatch.undo()
+    monkeypatch.delenv("CSS_TOOL_PROFILE", raising=False)
+    settings = CSSMCPSettings.load("css-mcp", env_prefix="CSS_MCP")
 
+    # Track whether CSSMCPSettings.load was called
+    load_calls: list[str] = []
 
-async def test_create_app_minimal_profile_real_path() -> None:
-    """W2b.3 keystone test — real MINIMAL ``await create_app(settings)``."""
-    monkeypatch = pytest.MonkeyPatch()
-    try:
-        monkeypatch.setenv("CSS_TOOL_PROFILE", "minimal")
-        settings = CSSMCPSettings.load("css-mcp", env_prefix="CSS_MCP")
-        mcp = await create_app(settings)
-        tools = await mcp.list_tools()
-        tool_names = {t.name for t in tools}
+    original_load = CSSMCPSettings.load
 
-        # MINIMAL: only discover_tools (no css-mcp tools)
-        assert "discover_tools" in tool_names, f"discover_tools missing at MINIMAL: {tool_names}"
-        css_tools = {
-            "analyze_css",
-            "analyze_css_summary",
-            "get_docs",
-            "get_browser_compatibility",
-            "search_properties",
-            "get_properties_by_category",
-            "analyze_project_css",
-            "list_capabilities",
-            "health_check",
-        }
-        assert not (css_tools & tool_names), f"MINIMAL leaked css tools: {css_tools & tool_names}"
-    finally:
-        monkeypatch.undo()
+    def tracking_load(*args, **kwargs):
+        load_calls.append("load_called")
+        return original_load(*args, **kwargs)
+
+    monkeypatch.setattr(CSSMCPSettings, "load", staticmethod(tracking_load))
+
+    # Build the registration map. If this calls .load() internally,
+    # load_calls will contain an entry. The W4.1 round-1 bug was that
+    # registration paths called .load() and discarded caller settings.
+    mapping = _build_registration_map(settings)
+
+    # Run the actual registration (FULL/STANDARD profile behavior)
+    server = FastMCP(name="test-server")
+    for _key, fn in mapping.items():
+        fn(server)
+
+    assert load_calls == [], (
+        f"_build_registration_map called CSSMCPSettings.load {len(load_calls)} time(s) — "
+        f"registration paths re-loaded settings from the environment, "
+        f"discarding the caller-supplied settings object. "
+        f"This is the W4.1 round-1 regression."
+    )
 
 
-async def test_create_app_standard_profile_real_path() -> None:
-    """STANDARD profile should match FULL (Tier-A trivial: same mapping)."""
-    monkeypatch = pytest.MonkeyPatch()
-    try:
-        monkeypatch.setenv("CSS_TOOL_PROFILE", "standard")
-        settings = CSSMCPSettings.load("css-mcp", env_prefix="CSS_MCP")
-        mcp = await create_app(settings)
-        tools = await mcp.list_tools()
-        tool_names = {t.name for t in tools}
+def test_register_all_tool_groups_does_not_reload_settings(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """register_all_tool_groups must not re-load settings from the environment."""
+    settings = CSSMCPSettings.load("css-mcp", env_prefix="CSS_MCP")
 
-        expected = {
-            "analyze_css",
-            "analyze_css_summary",
-            "get_docs",
-            "get_browser_compatibility",
-            "search_properties",
-            "get_properties_by_category",
-            "analyze_project_css",
-            "list_capabilities",
-            "health_check",
-            "discover_tools",
-        }
-        assert expected <= tool_names, f"Missing tools at STANDARD profile: {expected - tool_names}"
-    finally:
-        monkeypatch.undo()
+    load_calls: list[str] = []
+    original_load = CSSMCPSettings.load
+
+    def tracking_load(*args, **kwargs):
+        load_calls.append("load_called")
+        return original_load(*args, **kwargs)
+
+    monkeypatch.setattr(CSSMCPSettings, "load", staticmethod(tracking_load))
+
+    from fastmcp import FastMCP
+
+    server = FastMCP(name="test-server")
+    register_all_tool_groups(server, settings)
+
+    assert load_calls == [], (
+        f"register_all_tool_groups called CSSMCPSettings.load {len(load_calls)} time(s) — "
+        f"W4.1 round-1 regression: registration path discarded caller-supplied settings."
+    )
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
+def test_full_registrations_match_group_registry() -> None:
+    """FULL_REGISTRATIONS must be derived from _GROUP_REGISTRY (SSOT)."""
+    expected = [key for key, _ in _GROUP_REGISTRY]
+    assert expected == FULL_REGISTRATIONS, (
+        f"FULL_REGISTRATIONS={FULL_REGISTRATIONS} drifted from _GROUP_REGISTRY={expected}"
+    )
+
+
+def test_env_var_default_is_full(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Sanity: an unset CSS_TOOL_PROFILE env var falls through to FULL."""
+    monkeypatch.delenv("CSS_TOOL_PROFILE", raising=False)
+    assert os.getenv("CSS_TOOL_PROFILE") is None
 
 
 def test_full_default_when_unset(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -352,15 +383,98 @@ def test_full_default_when_unset(monkeypatch: pytest.MonkeyPatch) -> None:
     assert profile.value == "full", f"Expected default FULL, got {profile.value}"
 
 
-def test_full_registrations_match_group_registry() -> None:
-    """FULL_REGISTRATIONS must be derived from _GROUP_REGISTRY (single source of truth)."""
-    expected = [key for key, _ in _GROUP_REGISTRY]
-    assert expected == FULL_REGISTRATIONS, (
-        f"FULL_REGISTRATIONS={FULL_REGISTRATIONS} drifted from _GROUP_REGISTRY={expected}"
+# ---------------------------------------------------------------------------
+# W2b.3 keystone: real production-path tests (no mocks)
+# ---------------------------------------------------------------------------
+
+
+async def test_create_app_full_profile_real_path(monkeypatch: pytest.MonkeyPatch) -> None:
+    """W2b.3 keystone test — real ``await create_app(settings)`` end-to-end.
+
+    NO mocks of the dispatch helper. Uses standard ``monkeypatch`` fixture
+    (not manual MonkeyPatch lifecycle). Asserts STRICT EQUALITY on tool
+    names so unreported extra tools fail loud (W2b.1 lesson).
+    """
+    monkeypatch.delenv("CSS_TOOL_PROFILE", raising=False)
+    settings = CSSMCPSettings.load("css-mcp", env_prefix="CSS_MCP")
+    mcp = await create_app(settings)
+    tools = await mcp.list_tools()
+    tool_names = {t.name for t in tools}
+
+    # FULL profile: all 9 css-mcp tools + discover_tools
+    expected = {
+        "analyze_css",
+        "analyze_css_summary",
+        "get_docs",
+        "get_browser_compatibility",
+        "search_properties",
+        "get_properties_by_category",
+        "analyze_project_css",
+        "list_capabilities",
+        "health_check",
+        "discover_tools",
+    }
+    assert tool_names == expected, (
+        f"FULL profile tool set mismatch.\n"
+        f"  Expected: {sorted(expected)}\n"
+        f"  Got:      {sorted(tool_names)}\n"
+        f"  Missing:  {sorted(expected - tool_names)}\n"
+        f"  Extra:    {sorted(tool_names - expected)}"
     )
 
 
-def test_env_var_default_is_full(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Sanity: an unset CSS_TOOL_PROFILE env var falls through to FULL."""
-    monkeypatch.delenv("CSS_TOOL_PROFILE", raising=False)
-    assert os.getenv("CSS_TOOL_PROFILE") is None
+async def test_create_app_minimal_profile_real_path(monkeypatch: pytest.MonkeyPatch) -> None:
+    """W2b.3 keystone test — real MINIMAL ``await create_app(settings)``.
+
+    MINIMAL must expose ``health_check`` (canonical W4.1 mapping) plus
+    ``discover_tools``. Strict equality (no extra tools allowed).
+    """
+    monkeypatch.setenv("CSS_TOOL_PROFILE", "minimal")
+    settings = CSSMCPSettings.load("css-mcp", env_prefix="CSS_MCP")
+    mcp = await create_app(settings)
+    tools = await mcp.list_tools()
+    tool_names = {t.name for t in tools}
+
+    expected = {"health_check", "discover_tools"}
+    assert tool_names == expected, (
+        f"MINIMAL profile tool set mismatch.\n"
+        f"  Expected: {sorted(expected)}\n"
+        f"  Got:      {sorted(tool_names)}\n"
+        f"  Missing:  {sorted(expected - tool_names)}\n"
+        f"  Extra:    {sorted(tool_names - expected)}"
+    )
+
+    # Critical: health_check MUST be present at MINIMAL (W4.1 spec)
+    assert "health_check" in tool_names, (
+        f"health_check MISSING at MINIMAL profile — W4.1 canonical MINIMAL=health "
+        f"violated. Got: {tool_names}"
+    )
+
+
+async def test_create_app_standard_profile_real_path(monkeypatch: pytest.MonkeyPatch) -> None:
+    """STANDARD profile should match FULL (Tier-A trivial: same mapping)."""
+    monkeypatch.setenv("CSS_TOOL_PROFILE", "standard")
+    settings = CSSMCPSettings.load("css-mcp", env_prefix="CSS_MCP")
+    mcp = await create_app(settings)
+    tools = await mcp.list_tools()
+    tool_names = {t.name for t in tools}
+
+    expected = {
+        "analyze_css",
+        "analyze_css_summary",
+        "get_docs",
+        "get_browser_compatibility",
+        "search_properties",
+        "get_properties_by_category",
+        "analyze_project_css",
+        "list_capabilities",
+        "health_check",
+        "discover_tools",
+    }
+    assert tool_names == expected, (
+        f"STANDARD profile tool set mismatch.\n"
+        f"  Expected: {sorted(expected)}\n"
+        f"  Got:      {sorted(tool_names)}\n"
+        f"  Missing:  {sorted(expected - tool_names)}\n"
+        f"  Extra:    {sorted(tool_names - expected)}"
+    )

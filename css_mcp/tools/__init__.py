@@ -91,13 +91,54 @@ class SearchInput(BaseModel):
     limit: int = Field(default=10, ge=1, le=50, description="Maximum results")
 
 
+def register_health_tool(mcp: FastMCP, config: CSSMCPSettings) -> None:
+    """Register only the MCP ``health_check`` tool + the HTTP ``/health`` route.
+
+    Split out from ``register_tools`` so the W0 tool profile dispatch can
+    expose ``health_check`` independently at MINIMAL profile. The HTTP
+    ``/health`` route (registered via ``register_http_health_route``) is
+    load-bearing for the launchd wrapper that supervises css-mcp and is
+    included here for that reason — the route is intentionally kept
+    alongside the MCP health tool, NOT moved to ``register_tools``.
+
+    Args:
+        mcp: FastMCP server instance
+        config: Server configuration (used for the HTTP route's service_name/version)
+    """
+
+    @mcp.tool()
+    async def health_check() -> dict[str, Any]:
+        """Check server health status.
+
+        Returns:
+            Health status information
+        """
+        return {
+            "status": "healthy",
+            "version": "0.1.0",
+            "capabilities": [
+                "css_analysis",
+                "mdn_documentation",
+                "browser_compatibility",
+                "project_analysis",
+            ],
+        }
+
+    register_http_health_route(mcp, service_name="css-mcp", version=__version__)
+
+
 def register_tools(mcp: FastMCP, config: CSSMCPSettings) -> None:
     """Register all CSS analysis tools with the MCP server.
+
+    Calls ``register_health_tool`` first (which adds both the MCP
+    ``health_check`` tool AND the HTTP ``/health`` route), then registers
+    the remaining 8 analysis tools.
 
     Args:
         mcp: FastMCP server instance
         config: Server configuration
     """
+    register_health_tool(mcp, config)
 
     @mcp.tool()
     async def analyze_css(input_data: CSSInput) -> dict[str, Any]:
@@ -455,25 +496,5 @@ def register_tools(mcp: FastMCP, config: CSSMCPSettings) -> None:
             "version": "0.1.0",
             "metrics_count": 150,
         }
-
-    @mcp.tool()
-    async def health_check() -> dict[str, Any]:
-        """Check server health status.
-
-        Returns:
-            Health status information
-        """
-        return {
-            "status": "healthy",
-            "version": "0.1.0",
-            "capabilities": [
-                "css_analysis",
-                "mdn_documentation",
-                "browser_compatibility",
-                "project_analysis",
-            ],
-        }
-
-    register_http_health_route(mcp, service_name="css-mcp", version=__version__)
 
     logger.info("Registered CSS analysis tools", count=9)

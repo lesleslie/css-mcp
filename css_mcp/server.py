@@ -97,9 +97,14 @@ Available tools:
     # sync ``apply_tool_profile`` wrapper (which raises RuntimeError in
     # event loops and would silently break any test that runs
     # ``create_app`` under an async context).
+    #
+    # The caller-supplied ``settings`` instance is forwarded through to
+    # the registration paths so test-injected configuration overrides
+    # are preserved (the W4.1 round-1 reviewer fix — caller-supplied
+    # settings were silently discarded before).
     from css_mcp.tools.profiles import apply_css_tool_profile
 
-    await apply_css_tool_profile(mcp)
+    await apply_css_tool_profile(mcp, settings)
 
     return mcp
 
