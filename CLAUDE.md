@@ -35,8 +35,10 @@ The server is built on FastMCP and follows a modular architecture:
 
 ```
 css_mcp/
-├── server.py      # MCP server entry point, tool registration
-├── tools.py       # Tool implementations with Pydantic input models
+├── server.py      # MCP server entry point, async create_app + sync wrapper
+├── tools/         # Tool implementations
+│   ├── __init__.py # Pydantic input models + register_tools (all 9 tools)
+│   └── profiles.py # Tool profile dispatch (W4.1, mcp-common>=0.18.0)
 ├── analyzer.py    # Core CSS analysis engine (~150 derived metrics over 78 CSSMetrics fields)
 ├── mdn_fetcher.py # MDN Web Docs documentation fetcher
 ├── compat.py      # Browser compatibility checker
@@ -73,6 +75,37 @@ css_mcp/
 | `analyze_project_css` | Project-wide CSS analysis |
 | `list_capabilities` | List available tools |
 | `health_check` | Server health status |
+
+## Tool Profile System
+
+css-mcp adopts the W0 tool profile dispatch from `mcp-common>=0.18.0` with
+a Tier-A trivial 3-tier mapping (see `docs/architecture/tool-profile-rationale.md`
+for the full rationale):
+
+| Profile | Tools | Env var |
+|------------|--------------------------------------|-------------------------------|
+| `MINIMAL` | 0 css tools + `discover_tools` | `CSS_TOOL_PROFILE=minimal` |
+| `STANDARD` | All 9 tools + `discover_tools` | `CSS_TOOL_PROFILE=standard` |
+| `FULL` | All 9 tools + `discover_tools` | `CSS_TOOL_PROFILE=full` (default) |
+
+The `/health` HTTP route (registered via `register_http_health_route`)
+lives outside the W0 dispatch and is **always available** regardless of
+profile — it is load-bearing for the launchd wrapper that supervises
+this server. The pre-existing `tests/unit/test_health_route.py` test
+pins this invariant.
+
+### Dispatch surface
+
+- `css_mcp/tools/profiles.py` — `PROFILE_REGISTRATIONS`,
+  `_GROUP_REGISTRY` (single source of truth), `apply_css_tool_profile`
+  (async, the W2b.3 keystone entry point)
+- `css_mcp/server.py::create_app` — async production entry point
+- `css_mcp/server.py::create_server` — sync wrapper via `_run_async_safely`
+  (works from both sync CLI startup and async test contexts)
+- `tests/unit/test_tool_profile.py` — 17 wiring tests + AST guard that
+  structurally checks for `await apply_css_tool_profile(app)` (NOT just
+  call count — counting `ast.Call` would be a tautology that passes
+  even if `await` is removed)
 
 ## Configuration
 

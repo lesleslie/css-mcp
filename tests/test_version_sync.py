@@ -1,4 +1,5 @@
 """CI guard: ensure __version__ matches pyproject.toml distribution version."""
+
 from __future__ import annotations
 
 from importlib.metadata import version

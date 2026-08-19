@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 from mcp_common.fastmcp import FastMCP
 from oneiric.core.logging import get_logger
 
 from css_mcp.config import CSSMCPSettings
-from css_mcp.tools import register_tools
 
 logger = get_logger(__name__)
 
@@ -16,8 +16,54 @@ logger = get_logger(__name__)
 _mcp: FastMCP | None = None
 
 
+def _run_async_safely(coro: Any) -> Any:
+    """Run an async coroutine from a sync context, tolerating a running loop.
+
+    Bridges to the async ``create_app`` via ``asyncio.run`` when no loop
+    is running (CLI startup, ``__main__.py``). Falls back to a private
+    thread executor when a loop is already running (pytest-asyncio tests
+    that instantiate the class).
+
+    Tool profile dispatch is async because the W0 helper from
+    mcp-common 0.18.0 (``_apply_tool_profile``) is async. Per the
+    W2b.3 lesson, the sync ``apply_tool_profile`` wrapper raises
+    ``RuntimeError`` when called from inside a running event loop, so
+    the async path is the only correct entry point for any async caller.
+    """
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(coro)
+    # Loop already running (pytest-asyncio test). Run the coroutine in a
+    # private thread with its own fresh loop, mirroring the W3.4 unifi-mcp
+    # pattern that avoids blocking the test's loop.
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        return pool.submit(asyncio.run, coro).result()
+
+
 def create_server(settings: CSSMCPSettings) -> FastMCP:
-    """Create and configure the MCP server."""
+    """Create and configure the MCP server (sync wrapper).
+
+    Bridges to the async ``create_app`` via ``_run_async_safely``. Used
+    by the existing ``test_health_route.py`` test and the CLI startup
+    path. Tests that exercise the real async startup should call
+    ``await create_app(...)`` directly so any W2b.3-style regression in
+    the production dispatch path is caught.
+    """
+    return _run_async_safely(create_app(settings))
+
+
+async def create_app(settings: CSSMCPSettings) -> FastMCP:
+    """Create and configure the MCP server (async production path).
+
+    Async because the W0 tool profile dispatch helper is async.
+    Callers from sync contexts (CLI startup, ``get_app``, ``create_server``)
+    wrap with ``asyncio.run(create_app(...))``. Tests that exercise the
+    real async startup should call ``await create_app(...)`` directly so
+    any W2b.3-style regression in the production dispatch path is caught.
+    """
     mcp = FastMCP(
         name="CSS MCP Server",
         instructions="""CSS Analysis and Documentation Server
@@ -39,7 +85,22 @@ Available tools:
 """,
     )
 
-    register_tools(mcp, settings)
+    # Apply tool profile dispatch (CSS_TOOL_PROFILE env var).
+    #
+    # Replaces the previous direct ``register_tools(mcp, settings)`` call.
+    # The W0 helper from mcp-common 0.18.0+ dispatches by group name and
+    # always registers the ``discover_tools`` meta-tool. The default
+    # (no env var) remains FULL = all 9 css-mcp tools — the previous
+    # behavior is preserved.
+    #
+    # Per the W2b.3 keystone: this MUST be the async helper, NOT the
+    # sync ``apply_tool_profile`` wrapper (which raises RuntimeError in
+    # event loops and would silently break any test that runs
+    # ``create_app`` under an async context).
+    from css_mcp.tools.profiles import apply_css_tool_profile
+
+    await apply_css_tool_profile(mcp)
+
     return mcp
 
 
