@@ -1,0 +1,17 @@
+{
+  "author": {
+    "name": "Bodai"
+  },
+  "description": "Bodai plugin for the css-mcp CSS analysis server.",
+  "keywords": [
+    "bodai",
+    "mcp",
+    "css",
+    "analysis",
+    "mdn"
+  ],
+  "mcpServers": "./.mcp.json",
+  "name": "css",
+  "schema_version": "1.0.0",
+  "version": "0.1.0"
+}

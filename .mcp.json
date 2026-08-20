@@ -1,0 +1,6 @@
+{
+  "css": {
+    "type": "http",
+    "url": "http://localhost:3050/mcp"
+  }
+}

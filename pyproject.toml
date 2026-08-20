@@ -76,6 +76,11 @@ ignore = ["E501"]
 asyncio_mode = "auto"
 testpaths = ["tests"]
 
+[tool.mdformat]
+# NOTE: mdformat 1.0 only reads .mdformat.toml (this [tool.mdformat] section is
+# ignored). The actual exclude lives in .mdformat.toml at the repo root.
+exclude = ["commands/**"]
+
 [tool.uv.sources]
 mcp-common = { path = "../mcp-common", editable = true }
 
