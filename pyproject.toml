@@ -92,7 +92,7 @@ constraint-dependencies = [
 
 [dependency-groups]
 dev = [
-    "crackerjack>=0.54.3",
+    "crackerjack>=0.74.0",
     "session-buddy>=0.14.3",
 ]
 

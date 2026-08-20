@@ -10,11 +10,11 @@
 css-mcp adopts the W0 tool profile dispatch (`mcp_common.tools.dispatch._apply_tool_profile`)
 with the W4.1 canonical 3-tier mapping:
 
-| Profile    | Tools                                          | Use case                              |
+| Profile | Tools | Use case |
 |------------|------------------------------------------------|---------------------------------------|
-| `MINIMAL`  | `health_check` + `discover_tools`              | Health-probe-only / control-plane     |
-| `STANDARD` | All 9 css-mcp tools + `discover_tools`         | Daily development                     |
-| `FULL`     | All 9 css-mcp tools + `discover_tools`         | Same as STANDARD (css-mcp is Tier-A small) |
+| `MINIMAL` | `health_check` + `discover_tools` | Health-probe-only / control-plane |
+| `STANDARD` | All 9 css-mcp tools + `discover_tools` | Daily development |
+| `FULL` | All 9 css-mcp tools + `discover_tools` | Same as STANDARD (css-mcp is Tier-A small) |
 
 The pre-existing `/health` HTTP route (registered via
 `mcp_common.health.register_http_health_route`) lives **inside**
@@ -39,7 +39,7 @@ callables:
 | Function | Registers |
 |----------|-----------|
 | `register_health_tool(mcp, config)` | The MCP `health_check` tool + the HTTP `/health` route |
-| `register_tools(mcp, config)`       | Everything: `register_health_tool` first, then the 8 analysis tools |
+| `register_tools(mcp, config)` | Everything: `register_health_tool` first, then the 8 analysis tools |
 
 The split is the W4.1 round-1 reviewer fix: a single combined function
 (`register_tools`) cannot selectively expose the health probe at MINIMAL.
@@ -201,13 +201,13 @@ css_mcp/tools/__init__.py:450:    @mcp.tool()   # list_capabilities
 
 ## Behavioral parity
 
-| Configuration                    | Pre-refactor       | Post-refactor                  | Match?  |
+| Configuration | Pre-refactor | Post-refactor | Match? |
 |----------------------------------|--------------------|--------------------------------|---------|
-| No env var                       | 9 tools            | 9 + `discover_tools` = 10      | additive — meta-tool required by W0 spec |
-| `CSS_TOOL_PROFILE=minimal`       | (no profile system)| `health_check` + `discover_tools` = 2 | new — Tier-A canonical MINIMAL=health |
-| `CSS_TOOL_PROFILE=standard`      | (no profile system)| 9 + `discover_tools` = 10      | new — explicit |
-| `CSS_TOOL_PROFILE=full`          | (no profile system)| 9 + `discover_tools` = 10      | new — explicit |
-| `CSS_TOOL_PROFILE=bogus`         | (no profile system)| `InvalidProfileError`          | new — fail-loud |
+| No env var | 9 tools | 9 + `discover_tools` = 10 | additive — meta-tool required by W0 spec |
+| `CSS_TOOL_PROFILE=minimal` | (no profile system)| `health_check` + `discover_tools` = 2 | new — Tier-A canonical MINIMAL=health |
+| `CSS_TOOL_PROFILE=standard` | (no profile system)| 9 + `discover_tools` = 10 | new — explicit |
+| `CSS_TOOL_PROFILE=full` | (no profile system)| 9 + `discover_tools` = 10 | new — explicit |
+| `CSS_TOOL_PROFILE=bogus` | (no profile system)| `InvalidProfileError` | new — fail-loud |
 
 The `/health` HTTP route is preserved at every profile that includes
 `health_tools` (MINIMAL, STANDARD, FULL) — verified by the pre-existing
@@ -220,23 +220,23 @@ The `/health` HTTP route is preserved at every profile that includes
    `_GROUP_REGISTRY = [(<key1>, <attr1>), (<key2>, <attr2>)]`,
    MINIMAL=`[<key1>]`, STANDARD/FULL via `register_all_fn`.
 
-2. **If `excalidraw_mcp/tools/` is not yet a package**, convert
+1. **If `excalidraw_mcp/tools/` is not yet a package**, convert
    `tools.py` → `tools/__init__.py` BEFORE creating `tools/profiles.py`.
    Python won't import `css_mcp.tools.profiles` if `css_mcp/tools.py`
    already exists as a module file.
 
-3. **AST guard for `await apply_<repo>_tool_profile(app)` must be
+1. **AST guard for `await apply_<repo>_tool_profile(app)` must be
    structural** — `ast.Await(value=ast.Call(func=ast.Name(id=...)))`,
    not call-count. The latter is a tautology that would pass even when
    `await` is removed (the W3.2 round-1 fix). Verified by manually
    mutating css-mcp's server.py — guard failed correctly.
 
-4. **The `_run_async_safely` helper from unifi-mcp / css-mcp is the
+1. **The `_run_async_safely` helper from unifi-mcp / css-mcp is the
    pattern to copy** if excalidraw-mcp's main entrypoint is sync but
    the W0 dispatch is async. ThreadPoolExecutor bridge avoids the
    `RuntimeError` from `asyncio.run()` inside a running event loop.
 
-5. **Thread `settings` through every registration path.** The W4.1
+1. **Thread `settings` through every registration path.** The W4.1
    round-1 regression was re-loading `CSSMCPSettings.load(...)` inside
    registration callbacks, discarding caller-supplied overrides. Pass
    `settings` to `apply_<repo>_tool_profile(server, settings)`,
@@ -245,38 +245,38 @@ The `/health` HTTP route is preserved at every profile that includes
    default-argument capture in each lambda. Write a regression test
    that monkey-patches `<settings>.load` and fails if it gets called.
 
-6. **STANDARD must use a list, not `ALL_TOOLS` sentinel.** The W0
+1. **STANDARD must use a list, not `ALL_TOOLS` sentinel.** The W0
    dispatch loop iterates the value as a list; `ALL_TOOLS` is only
    honored at the FULL key. If STANDARD == FULL, both can use
    `FULL_REGISTRATIONS` (a list) OR the FULL key alone can use
    `ALL_TOOLS` — pick one consistently.
 
-7. **MINIMAL = `<health_key>` with `essential_tool_names={"<health_tool>"}`**
+1. **MINIMAL = `<health_key>` with `essential_tool_names={"<health_tool>"}`**
    is the canonical pattern for the W4.1 spec. Empty `mandatory_groups`
    (the per-profile registration walk already handles MINIMAL).
    `essential_tool_names` enforces the subset check that catches
    accidental health-tool drift.
 
-8. **`_GROUP_REGISTRY` must drive BOTH the registration map AND the
+1. **`_GROUP_REGISTRY` must drive BOTH the registration map AND the
    bulk registration loop.** Avoid name-specific conditionals like
    `if attr_name == "register_tools":` — they break the SSOT invariant.
    Use `getattr(<module>, attr_name)` uniformly.
 
-9. **Lambda binding for 2-arg register fns uses default-argument
+1. **Lambda binding for 2-arg register fns uses default-argument
    capture** (W3.1 lesson):
    `lambda app, _fn=register_fn, _cfg=settings: _fn(app, _cfg)`
    The `_fn=...` and `_cfg=...` defaults bind at lambda-creation time.
 
-10. **Strict-equality tool set assertions** in production-path tests
-    (W2b.1 lesson). Use `tool_names == expected` so unreported extra
-    tools fail loud — `expected <= tool_names` masks bugs.
+1. **Strict-equality tool set assertions** in production-path tests
+   (W2b.1 lesson). Use `tool_names == expected` so unreported extra
+   tools fail loud — `expected <= tool_names` masks bugs.
 
-11. **Use the standard `monkeypatch` pytest fixture**, not manual
-    `pytest.MonkeyPatch()` lifecycle (`monkeypatch = MonkeyPatch()` +
-    try/finally + `monkeypatch.undo()`). The fixture handles teardown
-    automatically.
+1. **Use the standard `monkeypatch` pytest fixture**, not manual
+   `pytest.MonkeyPatch()` lifecycle (`monkeypatch = MonkeyPatch()` +
+   try/finally + `monkeypatch.undo()`). The fixture handles teardown
+   automatically.
 
-12. **The mcp-common pin bump to `>=0.18.0` is mandatory** — the
-    `apply_tool_profile` and `_apply_tool_profile` helpers were
-    introduced in 0.18.0. The `test_pyproject_bumps_mcp_common_to_0_18`
-    test enforces this.
+1. **The mcp-common pin bump to `>=0.18.0` is mandatory** — the
+   `apply_tool_profile` and `_apply_tool_profile` helpers were
+   introduced in 0.18.0. The `test_pyproject_bumps_mcp_common_to_0_18`
+   test enforces this.
