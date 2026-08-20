@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-08-20
+
+### Added
+
+- css-mcp: Adopt ToolProfile dispatch (W4.1, mcp-common>=0.18.0)
+- css-mcp: Bodai plugin conversion (manifest, mcp.json, slash commands)
+
+### Fixed
+
+- css-mcp: Add trailing newline to tool-profile-rationale.md
+- css-mcp: Apply W4.1 round-1 reviewer fixes (MINIMAL=health, settings preservation)
+- css-mcp: Untrack .pyscn/reports/ artifacts
+
+### Internal
+
+- css-mcp: Bootstrap [tool.crackerjack] section + uv sync upgrade
+- css-mcp: Gitignore .lycheecache + .hypothesis
+- css-mcp: Refresh oneiric + mcp-common deps
+- css-mcp: Untrack .lycheecache + .hypothesis runtime artifacts
+- Gitignore runtime artifacts + untrack user-authorized cache files (bodai cleanup 2026-08-17)
+- gitignore: Untrack .pyscn/ (bodai 2026-08-20)
+
 ## [0.3.1] - 2026-08-14
 
 ### Documentation
