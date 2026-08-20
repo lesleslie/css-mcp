@@ -91,3 +91,7 @@ coverage.json
 *.pyd
 example.mcp.json
 .pyscn/
+
+# lychee + pytest-hypothesis caches (canonical sweep 2026-08-20)
+.lycheecache/
+.hypothesis/
