@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-import httpx
+import httpx2 as httpx
 from oneiric.core.logging import get_logger
 from pydantic import BaseModel, Field
 
