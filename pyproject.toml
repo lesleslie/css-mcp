@@ -20,7 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "fastmcp>=3.4.0,<4",
+    "fastmcp>=3.4.0,<5",
     "httpx2>=0.28.1",
     "mcp-common>=0.18.0",
     "oneiric>=0.16.0",
