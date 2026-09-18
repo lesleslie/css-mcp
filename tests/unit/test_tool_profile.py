@@ -159,9 +159,40 @@ def test_profiles_uses_async_helper_not_sync_wrapper() -> None:
 
 
 def test_pyproject_bumps_mcp_common_to_0_18() -> None:
-    """pyproject.toml must pin mcp-common>=0.18.0."""
+    """pyproject.toml must pin mcp-common so the floor is >= 0.18.0 (the version that shipped ``_apply_tool_profile``).
+
+    The substantive invariant is "the minimum allowed mcp-common is at
+    least 0.18.0" — a literal substring match against the pin string is
+    brittle (the floor was bumped to ``>=0.26.0,<0.27.0`` in 2026-09,
+    breaking the earlier ``"mcp-common>=0.18.0" in pyproject``
+    assertion even though the invariant still holds). We extract the
+    lower-bound specifier and compare its version against 0.18.0.
+    """
+    import re
+
+    from packaging.specifiers import SpecifierSet
+    from packaging.version import Version
+
     pyproject = (REPO_ROOT / "pyproject.toml").read_text()
-    assert "mcp-common>=0.18.0" in pyproject, "pyproject.toml must bump mcp-common to >=0.18.0"
+    match = re.search(r'"mcp-common([=<>!~]+[^"]+)"', pyproject)
+    assert match, "pyproject.toml must declare an mcp-common dependency"
+    spec = SpecifierSet(match.group(1))
+    # The lowest allowed version is the minimum across all ">=X" / "==X"
+    # specifiers (== without trailing zeros counts too — treat as floor).
+    floor_specs = [
+        s
+        for s in spec
+        if s.operator in (">=", "==")
+    ]
+    assert floor_specs, (
+        f"mcp-common pin {match.group(0)!r} has no lower-bound specifier"
+    )
+    min_floor = min(Version(str(s.version)) for s in floor_specs)
+    assert min_floor >= Version("0.18.0"), (
+        f"pyproject.toml must pin mcp-common floor >= 0.18.0 "
+        f"(found floor {min_floor} in {match.group(0)}); "
+        "0.18.0 is the version that shipped _apply_tool_profile."
+    )
 
 
 def test_decision_doc_exists_at_tracked_path() -> None:
