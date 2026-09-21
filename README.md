@@ -143,9 +143,9 @@ mypy css_mcp
 ruff check css_mcp
 ```
 
-## Installation via Bodai Marketplace
+## Installation via Claude Code marketplace
 
-The `css` plugin is published through the [Bodai marketplace](https://github.com/lesleslie/bodai-plugins). Add the marketplace, install the plugin, and the css-mcp HTTP server becomes available as `mcp__css__*` tools alongside three slash commands (`/css-audit-project`, `/css-analyze`, `/css-check-compat`). The plugin manifest lives at `.claude-plugin/plugin.json` and the server is registered in the colocated `.mcp.json` at `http://localhost:3050/mcp` — start the css-mcp server first, then run `claude plugin install css --marketplace bodai-plugins` from a fresh session.
+The `css` plugin is published through the [www-mcp-servers marketplace](https://github.com/lesleslie/www-mcp-servers). Register the marketplace once, install the plugin, and the css-mcp HTTP server becomes available as `mcp__css__*` tools alongside three slash commands (`/css-audit-project`, `/css-analyze`, `/css-check-compat`). The plugin manifest lives at `.claude-plugin/plugin.json` and the server is registered in the colocated `.mcp.json` at `http://localhost:3050/mcp` — start the css-mcp server first, then run `claude plugin install css --marketplace www-mcp-servers` from a fresh session.
 
 ## License
 
