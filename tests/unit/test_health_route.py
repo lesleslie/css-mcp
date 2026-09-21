@@ -1,7 +1,7 @@
 """Regression test pinning the /health HTTP route response shape.
 
 The launch_with_healthcheck.sh wrapper script used by launchd to supervise
-Bodai MCP servers polls GET /health after starting the server. The wrapper
+MCP servers polls GET /health after starting the server. The wrapper
 expects a JSON body with status == "ok", service == "<service name>", and a
 non-empty version. If css-mcp only exposed the MCP-tool health_check (POST
 /mcp), the wrapper would time out and crash-cycle restart the server, so
