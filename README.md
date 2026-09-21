@@ -150,3 +150,7 @@ The `css` plugin is published through the [www-mcp-servers marketplace](https://
 ## License
 
 BSD-3-Clause
+
+Built on [Oneiric](https://github.com/lesleslie/oneiric) for runtime configuration
+and [mcp-common](https://github.com/lesleslie/mcp-common) for the FastMCP
+baseline. [Crackerjack](https://github.com/lesleslie/crackerjack) gates every commit.
