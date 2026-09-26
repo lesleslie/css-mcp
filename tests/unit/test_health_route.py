@@ -8,7 +8,7 @@ non-empty version. If css-mcp only exposed the MCP-tool health_check (POST
 the existence and shape of GET /health is load-bearing.
 
 If this test fails, the launchd wrapper will silently kill the css-mcp
-server on every restart. Fix css_mcp/tools.py::register_tools() before
+server on every restart. Fix css_mcp/tools.py::register_health_tool() before
 merging.
 """
 
@@ -38,7 +38,7 @@ def test_health_route_is_registered() -> None:
 
 
 def test_health_route_returns_expected_shape() -> None:
-    """GET /health must return JSON with status=ok, service=css-mcp, non-empty version."""
+    """GET /health must return JSON with status=healthy, service=css-mcp, non-empty version."""
     client = _build_client()
 
     response = client.get("/health")
@@ -46,7 +46,7 @@ def test_health_route_returns_expected_shape() -> None:
     assert response.status_code == 200, f"GET /health returned {response.status_code}; expected 200"
 
     body = response.json()
-    assert body["status"] == "ok", f"status should be 'ok', got {body.get('status')!r}"
+    assert body["status"] == "healthy", f"status should be 'healthy', got {body.get('status')!r}"
     assert body["service"] == "css-mcp", f"service should be 'css-mcp', got {body.get('service')!r}"
     assert isinstance(body.get("version"), str) and body["version"], (
         f"version should be a non-empty string, got {body.get('version')!r}"

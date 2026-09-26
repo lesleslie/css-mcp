@@ -124,6 +124,10 @@ def register_health_tool(mcp: FastMCP, config: CSSMCPSettings) -> None:
             ],
         }
 
+    # Canonical /health HTTP route via the mcp-common 0.30.0 helper, which
+    # itself emits the canonical StatusValue.HEALTHY.value contract (the
+    # pre-0.30.0 helper emitted the legacy "ok" literal; the workaround
+    # below was removed in favor of the upstream-canonical helper).
     register_http_health_route(mcp, service_name="css-mcp", version=__version__)
 
 
