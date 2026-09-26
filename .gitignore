@@ -61,6 +61,7 @@ dmypy.json
 
 # Local settings overrides
 settings/local.yaml
+.claude/  # Claude Code artifacts (agents, skills, hooks, settings.local.json) — un-tracked per Claude Code convention
 
 # OS
 .DS_Store
